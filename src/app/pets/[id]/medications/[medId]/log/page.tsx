@@ -269,7 +269,7 @@ export default function LogDosePage() {
                 rows={3}
                 className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-              <Notes className="absolute left-3 top-3 text-gray-400" size={16} />
+              <FileText className="absolute left-3 top-3 text-gray-400" size={16} />
             </div>
           </div>
 

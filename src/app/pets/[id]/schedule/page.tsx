@@ -34,6 +34,7 @@ interface MedicationScheduleItem {
   medicationName: string;
   dosage?: string;
   unit?: string;
+  instructions?: string;
   scheduledTime: Date;
   status: "pending" | "given" | "missed" | "skipped";
   givenBy?: { name: string | null; email: string | null };
@@ -106,7 +107,24 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
       
       // For now, only show today's medications
       // In a real app, you'd fetch medications for each day
-      const medications = isToday ? (todaySchedule ?? []) : [];
+      const medications: MedicationScheduleItem[] = isToday
+        ? (todaySchedule ?? []).map(item => ({
+            medicationId: item.medicationId,
+            medicationName: item.medicationName,
+            dosage: item.dosage || undefined,
+            unit: item.unit || undefined,
+            instructions: item.instructions || undefined,
+            scheduledTime: item.scheduledTime,
+            status: item.status as "pending" | "given" | "missed" | "skipped",
+            givenBy: item.givenBy ? {
+              name: item.givenBy.name,
+              email: item.givenBy.email
+            } : undefined,
+            actualTime: item.actualTime || undefined,
+            notes: item.notes || undefined,
+            logId: item.logId || undefined,
+          }))
+        : [];
       
       calendar.push({
         date: currentDate,
