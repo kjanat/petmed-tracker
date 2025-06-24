@@ -6,7 +6,6 @@ import {
 	CheckCircle,
 	Pill,
 	Save,
-	Settings,
 	Trash2,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";

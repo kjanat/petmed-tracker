@@ -5,8 +5,6 @@ import {
 	AlertCircle,
 	Calendar,
 	CheckCircle,
-	Clock,
-	Edit3,
 	MoreVertical,
 	Pill,
 	Plus,
@@ -300,12 +298,12 @@ export default function PetMedicationsPage() {
 											<CheckCircle size={16} className="text-green-600" />
 											<span className="text-green-700 text-sm">
 												Last dose:{" "}
-												{medication.logs[0]!.actualTime
+												{medication.logs[0]?.actualTime
 													? new Date(
-															medication.logs[0]!.actualTime,
+															medication.logs[0]?.actualTime,
 														).toLocaleDateString()
 													: new Date(
-															medication.logs[0]!.createdAt,
+															medication.logs[0]?.createdAt,
 														).toLocaleDateString()}
 											</span>
 										</>

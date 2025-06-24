@@ -4,7 +4,7 @@ import { AlertCircle, ArrowLeft, Camera, QrCode, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import QrScanner from "qr-scanner";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 
 export default function QRScannerPage() {
@@ -64,14 +64,14 @@ export default function QRScannerPage() {
 	};
 
 	// Stop camera stream
-	const stopCamera = () => {
+	const stopCamera = useCallback(() => {
 		if (qrScannerRef.current) {
 			qrScannerRef.current.stop();
 			qrScannerRef.current.destroy();
 			qrScannerRef.current = null;
 		}
 		setIsScanning(false);
-	};
+	}, []);
 
 	// Handle file upload for QR code
 	const handleFileUpload = async (
@@ -111,7 +111,7 @@ export default function QRScannerPage() {
 	// Manual pet ID entry
 	const handleManualEntry = () => {
 		const petId = prompt("Enter Pet QR Code ID:");
-		if (petId && petId.trim()) {
+		if (petId?.trim()) {
 			router.push(`/qr?id=${petId.trim()}`);
 		}
 	};
@@ -121,7 +121,7 @@ export default function QRScannerPage() {
 		return () => {
 			stopCamera();
 		};
-	}, []);
+	}, [stopCamera]);
 
 	return (
 		<MobileLayout activeTab="qr">
@@ -176,6 +176,7 @@ export default function QRScannerPage() {
 								)}
 
 								<button
+									type="button"
 									onClick={startCamera}
 									className="mx-auto flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 								>
@@ -189,17 +190,26 @@ export default function QRScannerPage() {
 									<video
 										ref={videoRef}
 										className="aspect-square w-full object-cover"
-									/>
+									>
+										<track
+											kind="captions"
+											srcLang="en"
+											label="English captions"
+											default
+										/>
+									</video>
 								</div>
 
 								<div className="flex gap-3">
 									<button
+										type="button"
 										onClick={stopCamera}
 										className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
 									>
 										Stop Camera
 									</button>
 									<button
+										type="button"
 										onClick={simulateQRDetection}
 										className="flex-1 rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 									>
@@ -220,6 +230,7 @@ export default function QRScannerPage() {
 					<div className="space-y-3 p-4">
 						{/* Upload Image */}
 						<button
+							type="button"
 							onClick={() => fileInputRef.current?.click()}
 							className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-gray-50"
 						>
@@ -236,6 +247,7 @@ export default function QRScannerPage() {
 
 						{/* Manual Entry */}
 						<button
+							type="button"
 							onClick={handleManualEntry}
 							className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-gray-50"
 						>

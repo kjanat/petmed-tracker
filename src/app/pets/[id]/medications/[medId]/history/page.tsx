@@ -3,7 +3,6 @@
 import {
 	Activity,
 	AlertCircle,
-	Calendar,
 	CheckCircle,
 	Clock,
 	Download,
@@ -15,7 +14,7 @@ import {
 	X,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
@@ -39,6 +38,9 @@ export default function MedicationHistoryPage() {
 	const petId = params.id as string;
 	const medicationId = params.medId as string;
 
+	const statusFilterId = useId();
+	const timePeriodId = useId();
+
 	const [statusFilter, setStatusFilter] = useState<string>("all");
 	const [dateRange, setDateRange] = useState<string>("30"); // days
 	const [currentPage, setCurrentPage] = useState(1);
@@ -58,11 +60,13 @@ export default function MedicationHistoryPage() {
 						{!pet ? "Pet not found" : "Medication not found"}
 					</h2>
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 					>
 						Go Back
 					</button>
+					button{" "}
 				</div>
 			</MobileLayout>
 		);
@@ -133,6 +137,7 @@ export default function MedicationHistoryPage() {
 				{/* Header */}
 				<div className="mb-6 flex items-center gap-3">
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 					>
@@ -147,6 +152,7 @@ export default function MedicationHistoryPage() {
 						</p>
 					</div>
 					<button
+						type="button"
 						onClick={exportData}
 						className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
 					>
@@ -235,10 +241,14 @@ export default function MedicationHistoryPage() {
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="mb-1 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={statusFilterId}
+								className="mb-1 block font-medium text-gray-700 text-sm"
+							>
 								Status
 							</label>
 							<select
+								id={statusFilterId}
 								value={statusFilter}
 								onChange={(e) => {
 									setStatusFilter(e.target.value);
@@ -255,10 +265,14 @@ export default function MedicationHistoryPage() {
 						</div>
 
 						<div>
-							<label className="mb-1 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={timePeriodId}
+								className="mb-1 block font-medium text-gray-700 text-sm"
+							>
 								Time Period
 							</label>
 							<select
+								id={timePeriodId}
 								value={dateRange}
 								onChange={(e) => {
 									setDateRange(e.target.value);
@@ -369,6 +383,7 @@ export default function MedicationHistoryPage() {
 				{totalPages > 1 && (
 					<div className="mb-20 flex items-center justify-between">
 						<button
+							type="button"
 							onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 							disabled={currentPage === 1}
 							className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -383,6 +398,7 @@ export default function MedicationHistoryPage() {
 
 								return (
 									<button
+										type="button"
 										key={page}
 										onClick={() => setCurrentPage(page)}
 										className={`h-8 w-8 rounded-lg font-medium text-sm ${
@@ -400,6 +416,7 @@ export default function MedicationHistoryPage() {
 								<>
 									<span className="text-gray-500">...</span>
 									<button
+										type="button"
 										onClick={() => setCurrentPage(totalPages)}
 										className={`h-8 w-8 rounded-lg font-medium text-sm ${
 											totalPages === currentPage
@@ -414,6 +431,7 @@ export default function MedicationHistoryPage() {
 						</div>
 
 						<button
+							type="button"
 							onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
 							disabled={currentPage === totalPages}
 							className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"

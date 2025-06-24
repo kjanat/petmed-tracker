@@ -3,7 +3,6 @@
 import {
 	ArrowLeft,
 	Calendar,
-	Check,
 	Clock,
 	Edit2,
 	Plus,
@@ -33,7 +32,7 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 		medId: string;
 	} | null>(null);
 	const [showAddSchedule, setShowAddSchedule] = useState(false);
-	const [editingSchedule, setEditingSchedule] = useState<string | null>(null);
+	const [_editingSchedule, setEditingSchedule] = useState<string | null>(null);
 	const [scheduleForm, setScheduleForm] = useState<ScheduleFormData>({
 		scheduleType: "daily",
 		times: ["08:00"],

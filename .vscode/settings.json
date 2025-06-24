@@ -1,3 +1,16 @@
 {
-	"biome.configurationPath": "biome.jsonc"
+  "[json]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "biome.configurationPath": "biome.jsonc",
+  "editor.defaultFormatter": "biomejs.biome"
 }

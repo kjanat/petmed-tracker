@@ -1,9 +1,7 @@
 "use client";
 
 import {
-	AlertCircle,
 	ArrowLeft,
-	Calendar,
 	CheckCircle,
 	Clock,
 	Coffee,
@@ -15,7 +13,7 @@ import {
 	Plus,
 	XCircle,
 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import MobileLayout from "@/components/MobileLayout";
@@ -141,6 +139,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 				<div className="mb-6 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -154,6 +153,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 						</div>
 					</div>
 					<button
+						type="button"
 						onClick={() => router.push(`/pets/${resolvedParams.id}/food/new`)}
 						className="rounded-lg bg-blue-600 p-2 text-white transition-colors hover:bg-blue-700"
 					>
@@ -202,6 +202,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 										{item.status === "pending" && (
 											<div className="flex gap-2">
 												<button
+													type="button"
 													onClick={() => handleQuickLog(item.scheduleId, "fed")}
 													disabled={logFeedingMutation.isPending}
 													className="rounded-md bg-green-600 px-3 py-1 text-sm text-white transition-colors hover:bg-green-700 disabled:opacity-50"
@@ -209,6 +210,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 													Fed
 												</button>
 												<button
+													type="button"
 													onClick={() =>
 														handleQuickLog(item.scheduleId, "missed")
 													}
@@ -242,6 +244,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 								Create a feeding schedule to help track your pet's meals
 							</p>
 							<button
+								type="button"
 								onClick={() =>
 									router.push(`/pets/${resolvedParams.id}/food/new`)
 								}
@@ -302,6 +305,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 
 										<div className="relative">
 											<button
+												type="button"
 												onClick={() =>
 													setActiveMenu(
 														activeMenu === schedule.id ? null : schedule.id,
@@ -315,6 +319,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 											{activeMenu === schedule.id && (
 												<div className="absolute top-full right-0 z-10 mt-1 min-w-[160px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
 													<button
+														type="button"
 														onClick={() => {
 															router.push(
 																`/pets/${resolvedParams.id}/food/${schedule.id}/log`,
@@ -327,6 +332,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 														Log Feeding
 													</button>
 													<button
+														type="button"
 														onClick={() => {
 															router.push(
 																`/pets/${resolvedParams.id}/food/${schedule.id}/edit`,
@@ -339,6 +345,7 @@ export default function FoodSchedulePage({ params }: FoodSchedulePageProps) {
 														Edit Schedule
 													</button>
 													<button
+														type="button"
 														onClick={() => {
 															router.push(
 																`/pets/${resolvedParams.id}/food/${schedule.id}/history`,

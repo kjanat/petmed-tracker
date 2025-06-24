@@ -5,7 +5,6 @@ import {
 	Check,
 	CheckCircle,
 	Clock,
-	Download,
 	FileText,
 	Heart,
 	Plus,
@@ -14,7 +13,6 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "react-hot-toast";
-import QRCode from "react-qr-code";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
@@ -58,7 +56,7 @@ function QRPageContent() {
 		},
 	});
 
-	const handleQuickLog = (medicationId: string, medicationName: string) => {
+	const handleQuickLog = (medicationId: string, _medicationName: string) => {
 		setSelectedMedication(medicationId);
 		setShowLogForm(true);
 	};
@@ -130,7 +128,7 @@ function QRPageContent() {
 	const now = new Date();
 
 	// Calculate status summary
-	const totalMeds = schedule.length;
+	const _totalMeds = schedule.length;
 	const givenMeds = schedule.filter((item) => item.status === "given").length;
 	const pendingMeds = schedule.filter(
 		(item) => item.status === "pending",
@@ -281,6 +279,7 @@ function QRPageContent() {
 												{/* Quick Log Button */}
 												{item.status !== "given" && (
 													<button
+														type="button"
 														onClick={() =>
 															handleQuickLog(
 																item.medicationId,
@@ -424,6 +423,7 @@ function QRPageContent() {
 								{/* Form Actions */}
 								<div className="flex gap-3 pt-4">
 									<button
+										type="button"
 										onClick={() => {
 											setShowLogForm(false);
 											setSelectedMedication(null);

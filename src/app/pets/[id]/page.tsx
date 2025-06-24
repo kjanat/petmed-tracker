@@ -6,7 +6,6 @@ import {
 	Baby,
 	Calendar,
 	CheckCircle,
-	Clock,
 	Coffee,
 	Edit3,
 	FileText,
@@ -16,12 +15,10 @@ import {
 	Plus,
 	QrCode,
 	Settings,
-	Stethoscope,
 	Trash2,
 	User,
 	Users,
 	Weight,
-	X,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -362,7 +359,7 @@ export default function PetDetailsPage() {
 												<CheckCircle size={16} />
 												<span className="text-xs">
 													{new Date(
-														med.logs[0]!.createdAt,
+														med.logs[0]?.createdAt,
 													).toLocaleDateString()}
 												</span>
 											</div>

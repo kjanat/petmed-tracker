@@ -4,14 +4,13 @@ import {
 	AlertCircle,
 	Archive,
 	ArrowLeft,
-	CheckCircle,
 	Clock,
 	Coffee,
 	Plus,
 	Save,
 	Trash2,
 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import MobileLayout from "@/components/MobileLayout";

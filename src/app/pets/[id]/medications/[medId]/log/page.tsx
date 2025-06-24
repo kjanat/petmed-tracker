@@ -2,13 +2,11 @@
 
 import {
 	AlertCircle,
-	Calendar,
 	Check,
 	CheckCircle,
 	Clock,
 	FileText,
 	Pill,
-	User,
 	X,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -213,9 +211,9 @@ export default function LogDosePage() {
 									}
 									className={`rounded-lg border-2 p-4 text-left transition-colors ${
 										formData.status === option.value
-											? getStatusColor(option.value)
+											? `${getStatusColor(option.value)
 													.replace("bg-", "bg-")
-													.replace("50", "100") + " border-current"
+													.replace("50", "100")} border-current`
 											: "border-gray-200 bg-white hover:border-gray-300"
 									}`}
 								>

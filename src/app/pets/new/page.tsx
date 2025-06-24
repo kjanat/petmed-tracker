@@ -3,13 +3,21 @@
 import { ArrowLeft, Heart, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
 export default function AddPetPage() {
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Generate unique IDs for form fields
+	const nameId = useId();
+	const speciesId = useId();
+	const breedId = useId();
+	const birthDateId = useId();
+	const weightId = useId();
+	const notesId = useId();
 
 	const createPet = api.pet.create.useMutation({
 		onSuccess: () => {
@@ -83,14 +91,14 @@ export default function AddPetPage() {
 							{/* Pet Name - Required */}
 							<div>
 								<label
-									htmlFor="name"
+									htmlFor={nameId}
 									className="mb-2 block font-medium text-gray-700 text-sm"
 								>
 									Pet Name *
 								</label>
 								<input
 									type="text"
-									id="name"
+									id={nameId}
 									name="name"
 									required
 									maxLength={50}
@@ -103,13 +111,13 @@ export default function AddPetPage() {
 							<div className="grid grid-cols-2 gap-4">
 								<div>
 									<label
-										htmlFor="species"
+										htmlFor={speciesId}
 										className="mb-2 block font-medium text-gray-700 text-sm"
 									>
 										Species
 									</label>
 									<select
-										id="species"
+										id={speciesId}
 										name="species"
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									>
@@ -128,14 +136,14 @@ export default function AddPetPage() {
 
 								<div>
 									<label
-										htmlFor="breed"
+										htmlFor={breedId}
 										className="mb-2 block font-medium text-gray-700 text-sm"
 									>
 										Breed
 									</label>
 									<input
 										type="text"
-										id="breed"
+										id={breedId}
 										name="breed"
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 										placeholder="e.g., Golden Retriever"
@@ -147,14 +155,14 @@ export default function AddPetPage() {
 							<div className="grid grid-cols-2 gap-4">
 								<div>
 									<label
-										htmlFor="birthDate"
+										htmlFor={birthDateId}
 										className="mb-2 block font-medium text-gray-700 text-sm"
 									>
 										Birth Date
 									</label>
 									<input
 										type="date"
-										id="birthDate"
+										id={birthDateId}
 										name="birthDate"
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
@@ -162,14 +170,14 @@ export default function AddPetPage() {
 
 								<div>
 									<label
-										htmlFor="weight"
+										htmlFor={weightId}
 										className="mb-2 block font-medium text-gray-700 text-sm"
 									>
 										Weight (lbs)
 									</label>
 									<input
 										type="number"
-										id="weight"
+										id={weightId}
 										name="weight"
 										step="0.1"
 										min="0.1"
@@ -182,13 +190,13 @@ export default function AddPetPage() {
 							{/* Notes */}
 							<div>
 								<label
-									htmlFor="notes"
+									htmlFor={notesId}
 									className="mb-2 block font-medium text-gray-700 text-sm"
 								>
 									Notes
 								</label>
 								<textarea
-									id="notes"
+									id={notesId}
 									name="notes"
 									rows={3}
 									className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"

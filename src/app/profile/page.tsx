@@ -9,6 +9,7 @@ import {
 	Shield,
 	User,
 } from "lucide-react";
+import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
@@ -58,9 +59,11 @@ export default function ProfilePage() {
 					<div className="mb-4 flex items-center gap-4">
 						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
 							{session.user.image ? (
-								<img
+								<Image
 									src={session.user.image}
 									alt="Profile"
+									width={64}
+									height={64}
 									className="h-16 w-16 rounded-full object-cover"
 								/>
 							) : (
@@ -89,7 +92,10 @@ export default function ProfilePage() {
 							</div>
 						</div>
 						<div className="space-y-3 p-4">
-							<button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
+							<button
+								type="button"
+								className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
+							>
 								<div className="flex items-center gap-3">
 									<Bell size={16} className="text-gray-500" />
 									<span className="text-gray-700">Notifications</span>
@@ -97,7 +103,10 @@ export default function ProfilePage() {
 								<span className="text-gray-400 text-sm">Coming Soon</span>
 							</button>
 
-							<button className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
+							<button
+								type="button"
+								className="flex w-full items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
+							>
 								<div className="flex items-center gap-3">
 									<Shield size={16} className="text-gray-500" />
 									<span className="text-gray-700">Privacy Settings</span>
@@ -163,6 +172,7 @@ export default function ProfilePage() {
 					{/* Sign Out */}
 					<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
 						<button
+							type="button"
 							onClick={handleSignOut}
 							disabled={isSigningOut}
 							className="flex w-full items-center justify-center gap-3 rounded-lg p-4 text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"

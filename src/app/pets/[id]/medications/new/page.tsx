@@ -1,13 +1,6 @@
 "use client";
 
-import {
-	AlertCircle,
-	Calendar,
-	CheckCircle,
-	Clock,
-	Pill,
-	Plus,
-} from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
@@ -71,7 +64,7 @@ export default function NewMedicationPage() {
 	const { data: pet } = api.pet.getById.useQuery({ id: petId });
 
 	const createMedicationMutation = api.medication.create.useMutation({
-		onSuccess: (medication) => {
+		onSuccess: (_medication) => {
 			router.push(`/pets/${petId}/medications`);
 		},
 	});

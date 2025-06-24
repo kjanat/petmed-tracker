@@ -2,10 +2,7 @@
 
 import {
 	ArrowLeft,
-	Calendar,
 	CheckCircle,
-	ChevronLeft,
-	ChevronRight,
 	Clock,
 	Coffee,
 	Download,
@@ -15,7 +12,7 @@ import {
 	User,
 	XCircle,
 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import MobileLayout from "@/components/MobileLayout";
