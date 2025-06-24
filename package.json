@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "next build",
 		"check": "biome check .",
+		"check:summary": "biome check . --max-diagnostics=none --reporter=summary",
 		"check:unsafe": "biome check --write --unsafe .",
 		"check:write": "biome check --write .",
 		"db:generate": "prisma migrate dev",
@@ -16,7 +17,9 @@
 		"postinstall": "prisma generate",
 		"preview": "next build && next start",
 		"start": "next start",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+        "ci:check": "biome check . --max-diagnostics=none --reporter=github",
+        "ci:check:write": "biome check . --max-diagnostics=none --reporter=github --write"
 	},
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.10.0",
