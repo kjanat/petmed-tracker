@@ -1,19 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import MobileLayout from "@/components/MobileLayout";
 import { Clock, AlertCircle, CheckCircle, Download, Heart } from "lucide-react";
 import QRCode from "react-qr-code";
 
-export default function QRPage() {
+function QRPageContent() {
   const searchParams = useSearchParams();
   const qrCodeId = searchParams.get("id");
   
   const { data: scheduleData, isLoading } = api.qrCode.getTodayScheduleByQrCode.useQuery(
     { qrCodeId: qrCodeId! },
-    { enabled: !!qrCodeId, refetchInterval: 30000 }
+    {
+      enabled: !!qrCodeId,
+      refetchInterval: 30000,
+      retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    }
   );
 
   if (!qrCodeId) {
@@ -218,5 +223,19 @@ export default function QRPage() {
         </div>
       </div>
     </MobileLayout>
+  );
+}
+
+export default function QRPage() {
+  return (
+    <Suspense fallback={
+      <MobileLayout activeTab="qr">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </MobileLayout>
+    }>
+      <QRPageContent />
+    </Suspense>
   );
 }
