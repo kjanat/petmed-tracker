@@ -29,7 +29,9 @@ updates:
     commit-message:
       prefix: 'chore(deps)'
     labels:
-      -  'dependencies'
+      - 'dependencies'
+      - 'dependencies/bun'
+      - 'dependabot'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
@@ -46,3 +48,5 @@ updates:
       prefix: 'chore(actions)'
     labels:
       - 'dependencies'
+      - 'dependencies/github-actions'
+      - 'dependabot'
