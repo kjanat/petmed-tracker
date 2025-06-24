@@ -205,6 +205,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 				<div className="mb-6 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -222,6 +223,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 					<div className="flex gap-2">
 						<div className="relative">
 							<button
+								type="button"
 								onClick={() => setShowFilterMenu(!showFilterMenu)}
 								className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 							>
@@ -233,6 +235,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 									{(["all", "fed", "missed", "skipped"] as StatusFilter[]).map(
 										(status) => (
 											<button
+												type="button"
 												key={status}
 												onClick={() => {
 													setStatusFilter(status);
@@ -256,6 +259,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 							)}
 						</div>
 						<button
+							type="button"
 							onClick={exportToCsv}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 							title="Export to CSV"
@@ -308,6 +312,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 							{filteredLogs.length !== 1 ? "s" : ""}
 						</span>
 						<button
+							type="button"
 							onClick={() => {
 								setStatusFilter("all");
 								setCurrentPage(1);
@@ -394,6 +399,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 
 						<div className="flex items-center gap-2">
 							<button
+								type="button"
 								onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 								disabled={currentPage === 1}
 								className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -406,6 +412,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 									const page = i + 1;
 									return (
 										<button
+											type="button"
 											key={page}
 											onClick={() => setCurrentPage(page)}
 											className={`h-8 w-8 rounded-lg font-medium text-sm ${
@@ -422,6 +429,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 									<>
 										<span className="text-gray-500">...</span>
 										<button
+											type="button"
 											onClick={() => setCurrentPage(totalPages)}
 											className={`h-8 w-8 rounded-lg font-medium text-sm ${
 												totalPages === currentPage
@@ -436,6 +444,7 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
 							</div>
 
 							<button
+								type="button"
 								onClick={() =>
 									setCurrentPage((p) => Math.min(totalPages, p + 1))
 								}

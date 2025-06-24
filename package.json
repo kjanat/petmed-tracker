@@ -18,8 +18,8 @@
 		"preview": "next build && next start",
 		"start": "next start",
 		"typecheck": "tsc --noEmit",
-        "ci:check": "biome check . --max-diagnostics=none --reporter=github",
-        "ci:check:write": "biome check . --max-diagnostics=none --reporter=github --write"
+		"ci:check": "biome check . --max-diagnostics=none --reporter=github",
+		"ci:check:write": "biome check . --max-diagnostics=none --reporter=github --write"
 	},
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.10.0",

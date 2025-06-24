@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "react-hot-toast";
 import QRCode from "react-qr-code";
 import MobileLayout from "@/components/MobileLayout";
@@ -136,12 +136,15 @@ export default function PetDetailsPage() {
 			)
 			.slice(0, 10) || [];
 
+	const qrCodeId = useId();
+
 	return (
 		<MobileLayout activeTab="pets">
 			<div className="px-4 py-6">
 				{/* Header */}
 				<div className="relative mb-6 flex items-center justify-between">
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 					>
@@ -150,6 +153,7 @@ export default function PetDetailsPage() {
 					<h1 className="font-bold text-gray-900 text-xl">{pet.name}</h1>
 					<div className="relative">
 						<button
+							type="button"
 							onClick={() => setShowSettings(!showSettings)}
 							className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 						>
@@ -160,6 +164,7 @@ export default function PetDetailsPage() {
 						{showSettings && (
 							<div className="settings-dropdown absolute top-full right-0 z-10 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
 								<button
+									type="button"
 									onClick={() => {
 										setEditingPet(true);
 										setShowSettings(false);
@@ -170,6 +175,7 @@ export default function PetDetailsPage() {
 									Edit Pet Details
 								</button>
 								<button
+									type="button"
 									onClick={() => {
 										setShowQr(true);
 										setShowSettings(false);
@@ -181,6 +187,7 @@ export default function PetDetailsPage() {
 								</button>
 								<div className="border-gray-100 border-t">
 									<button
+										type="button"
 										onClick={() => {
 											setShowDeleteConfirm(true);
 											setShowSettings(false);
@@ -304,6 +311,7 @@ export default function PetDetailsPage() {
 					</Link>
 
 					<button
+						type="button"
 						onClick={() => setShowQr(true)}
 						className="flex items-center gap-3 rounded-lg bg-gray-100 p-4 text-gray-700 transition-colors hover:bg-gray-200"
 					>
@@ -438,6 +446,7 @@ export default function PetDetailsPage() {
 						<button
 							onClick={() => setShowAddCaregiver(true)}
 							className="rounded p-1 text-purple-600 hover:bg-purple-50"
+							type="button"
 						>
 							<Plus size={16} />
 						</button>
@@ -478,6 +487,7 @@ export default function PetDetailsPage() {
 											}
 										}}
 										className="text-red-600 text-sm hover:text-red-700"
+										type="button"
 									>
 										Remove
 									</button>
@@ -503,6 +513,7 @@ export default function PetDetailsPage() {
 					<button
 						onClick={() => setEditingPet(true)}
 						className="flex items-center gap-3 rounded-lg bg-gray-100 p-4 text-gray-700 transition-colors hover:bg-gray-200"
+						type="button"
 					>
 						<Settings size={20} />
 						<div>
@@ -522,7 +533,7 @@ export default function PetDetailsPage() {
 						</h3>
 
 						<div
-							id="qr-code-modal"
+							id={qrCodeId}
 							className="mb-4 rounded-lg bg-white p-4 text-center"
 						>
 							<QRCode
@@ -541,6 +552,7 @@ export default function PetDetailsPage() {
 							<button
 								onClick={() => setShowQr(false)}
 								className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+								type="button"
 							>
 								Close
 							</button>
@@ -582,6 +594,7 @@ export default function PetDetailsPage() {
 									}
 								}}
 								className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+								type="button"
 							>
 								Download
 							</button>
@@ -633,6 +646,7 @@ export default function PetDetailsPage() {
 							<button
 								onClick={() => setShowDeleteConfirm(false)}
 								className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+								type="button"
 							>
 								Cancel
 							</button>
@@ -666,10 +680,14 @@ export default function PetDetailsPage() {
 						</h3>
 
 						<div className="mb-4">
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor="email"
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Email Address
 							</label>
 							<input
+								id="email"
 								type="email"
 								value={caregiverEmail}
 								onChange={(e) => setCaregiverEmail(e.target.value)}
@@ -685,6 +703,7 @@ export default function PetDetailsPage() {
 									setCaregiverEmail("");
 								}}
 								className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+								type="button"
 							>
 								Cancel
 							</button>
@@ -747,10 +766,14 @@ export default function PetDetailsPage() {
 							className="space-y-4"
 						>
 							<div>
-								<label className="mb-1 block font-medium text-gray-700 text-sm">
+								<label
+									htmlFor="name"
+									className="mb-1 block font-medium text-gray-700 text-sm"
+								>
 									Name *
 								</label>
 								<input
+									id="name"
 									name="name"
 									type="text"
 									defaultValue={pet.name}
@@ -761,10 +784,14 @@ export default function PetDetailsPage() {
 
 							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<label className="mb-1 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor="species"
+										className="mb-1 block font-medium text-gray-700 text-sm"
+									>
 										Species
 									</label>
 									<input
+										id="species"
 										name="species"
 										type="text"
 										defaultValue={pet.species || ""}
@@ -774,10 +801,14 @@ export default function PetDetailsPage() {
 								</div>
 
 								<div>
-									<label className="mb-1 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor="breed"
+										className="mb-1 block font-medium text-gray-700 text-sm"
+									>
 										Breed
 									</label>
 									<input
+										id="breed"
 										name="breed"
 										type="text"
 										defaultValue={pet.breed || ""}
@@ -789,10 +820,14 @@ export default function PetDetailsPage() {
 
 							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<label className="mb-1 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor="birthDate"
+										className="mb-1 block font-medium text-gray-700 text-sm"
+									>
 										Birth Date
 									</label>
 									<input
+										id="birthDate"
 										name="birthDate"
 										type="date"
 										defaultValue={
@@ -805,10 +840,14 @@ export default function PetDetailsPage() {
 								</div>
 
 								<div>
-									<label className="mb-1 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor="weight"
+										className="mb-1 block font-medium text-gray-700 text-sm"
+									>
 										Weight (lbs)
 									</label>
 									<input
+										id="weight"
 										name="weight"
 										type="number"
 										step="0.1"
@@ -820,10 +859,14 @@ export default function PetDetailsPage() {
 							</div>
 
 							<div>
-								<label className="mb-1 block font-medium text-gray-700 text-sm">
+								<label
+									htmlFor="notes"
+									className="mb-1 block font-medium text-gray-700 text-sm"
+								>
 									Notes
 								</label>
 								<textarea
+									id="notes"
 									name="notes"
 									rows={3}
 									defaultValue={pet.notes || ""}
@@ -837,6 +880,7 @@ export default function PetDetailsPage() {
 									type="button"
 									onClick={() => setEditingPet(false)}
 									className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+									type="button"
 								>
 									Cancel
 								</button>

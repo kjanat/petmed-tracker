@@ -165,6 +165,7 @@ export default function NewFoodSchedulePage({
 				{/* Header */}
 				<div className="mb-6 flex items-center gap-3">
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 					>

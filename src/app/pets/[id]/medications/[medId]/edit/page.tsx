@@ -114,6 +114,7 @@ export default function EditMedicationPage() {
 						{!pet ? "Pet not found" : "Medication not found"}
 					</h2>
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 					>
@@ -130,6 +131,7 @@ export default function EditMedicationPage() {
 				{/* Header */}
 				<div className="mb-6 flex items-center gap-3">
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 					>
@@ -420,12 +422,14 @@ export default function EditMedicationPage() {
 
 							<div className="flex gap-2">
 								<button
+									type="button"
 									onClick={() => setShowDeleteConfirm(false)}
 									className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
 								>
 									Cancel
 								</button>
 								<button
+									type="button"
 									onClick={handleDelete}
 									disabled={deleteMedicationMutation.isPending}
 									className="flex-1 rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"

@@ -11,7 +11,7 @@ import {
 	X,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useId, useState } from "react";
 import { toast } from "react-hot-toast";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
@@ -321,10 +321,10 @@ function QRPageContent() {
 							<div className="space-y-4">
 								{/* Status Selection */}
 								<div>
-									<label className="mb-2 block font-medium text-gray-700 text-sm">
+									<label htmlFor="status" className="mb-2 block font-medium text-gray-700 text-sm">
 										Status *
 									</label>
-									<div className="space-y-2">
+									<div id="status" className="space-y-2">
 										{[
 											{
 												value: "given",
@@ -378,10 +378,11 @@ function QRPageContent() {
 
 								{/* Caregiver Name */}
 								<div>
-									<label className="mb-2 block font-medium text-gray-700 text-sm">
+									<label htmlFor="caregiverName" className="mb-2 block font-medium text-gray-700 text-sm">
 										Your Name *
 									</label>
 									<input
+										id="caregiverName"
 										type="text"
 										value={logForm.caregiverName}
 										onChange={(e) =>
@@ -397,27 +398,21 @@ function QRPageContent() {
 
 								{/* Notes */}
 								<div>
-									<label className="mb-2 block font-medium text-gray-700 text-sm">
+									<label htmlFor="notes" className="mb-2 block font-medium text-gray-700 text-sm">
 										Notes (Optional)
 									</label>
-									<div className="relative">
-										<textarea
-											value={logForm.notes}
-											onChange={(e) =>
-												setLogForm((prev) => ({
-													...prev,
-													notes: e.target.value,
-												}))
-											}
-											placeholder="Any observations or notes..."
-											rows={3}
-											className="w-full rounded-lg border border-gray-300 px-3 py-2 pl-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-										/>
-										<FileText
-											className="absolute top-3 left-3 text-gray-400"
-											size={16}
-										/>
-									</div>
+									<textarea
+										id="notes"
+										value={logForm.notes}
+										onChange={(e) =>
+											setLogForm((prev) => ({
+												...prev,
+												notes: e.target.value,
+											}))
+										}
+										placeholder="Add any additional notes"
+										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+									/>
 								</div>
 
 								{/* Form Actions */}
@@ -442,7 +437,7 @@ function QRPageContent() {
 										disabled={
 											logDoseMutation.isPending || !logForm.caregiverName.trim()
 										}
-										className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+										className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
 									>
 										{logDoseMutation.isPending ? (
 											<div className="flex items-center justify-center gap-2">

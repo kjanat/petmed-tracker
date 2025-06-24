@@ -10,7 +10,7 @@ import {
 	X,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
@@ -19,6 +19,8 @@ export default function LogDosePage() {
 	const router = useRouter();
 	const petId = params.id as string;
 	const medicationId = params.medId as string;
+	const timeInputId = useId();
+	const notesInputId = useId();
 
 	const [formData, setFormData] = useState({
 		status: "given" as "given" | "missed" | "skipped",
@@ -89,6 +91,7 @@ export default function LogDosePage() {
 						{!pet ? "Pet not found" : "Medication not found"}
 					</h2>
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 					>
@@ -105,6 +108,7 @@ export default function LogDosePage() {
 				{/* Header */}
 				<div className="mb-6 flex items-center gap-3">
 					<button
+						type="button"
 						onClick={() => router.back()}
 						className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 					>
@@ -176,9 +180,9 @@ export default function LogDosePage() {
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Status Selection */}
 					<div>
-						<label className="mb-3 block font-medium text-gray-700 text-sm">
+						<h3 className="mb-3 block font-medium text-gray-700 text-sm">
 							Status *
-						</label>
+						</h3>
 						<div className="grid grid-cols-1 gap-3">
 							{[
 								{
@@ -206,7 +210,7 @@ export default function LogDosePage() {
 									onClick={() =>
 										setFormData((prev) => ({
 											...prev,
-											status: option.value as any,
+											status: option.value as "given" | "missed" | "skipped",
 										}))
 									}
 									className={`rounded-lg border-2 p-4 text-left transition-colors ${
@@ -242,11 +246,15 @@ export default function LogDosePage() {
 
 					{/* Date/Time */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={timeInputId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							{formData.status === "given" ? "Time Given" : "Time of Event"} *
 						</label>
 						<div className="relative">
 							<input
+								id={timeInputId}
 								type="datetime-local"
 								value={formData.actualTime}
 								onChange={(e) =>
@@ -271,9 +279,9 @@ export default function LogDosePage() {
 
 					{/* Quick Time Buttons */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<h3 className="mb-2 block font-medium text-gray-700 text-sm">
 							Quick Select
-						</label>
+						</h3>
 						<div className="grid grid-cols-3 gap-2">
 							{[
 								{ label: "Now", minutes: 0 },
@@ -304,11 +312,15 @@ export default function LogDosePage() {
 
 					{/* Notes */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={notesInputId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Notes (Optional)
 						</label>
 						<div className="relative">
 							<textarea
+								id={notesInputId}
 								value={formData.notes}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, notes: e.target.value }))
