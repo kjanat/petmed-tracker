@@ -12,12 +12,60 @@ interface BeforeInstallPromptEvent extends Event {
 	prompt(): Promise<void>;
 }
 
+// Extend Navigator interface for iOS standalone detection
+interface ExtendedNavigator extends Navigator {
+	standalone?: boolean;
+}
+
 export default function PWAInstaller() {
 	const [deferredPrompt, setDeferredPrompt] =
 		useState<BeforeInstallPromptEvent | null>(null);
 	const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+	const [_isInstalled, setIsInstalled] = useState(false);
+
+	// Remove unused variable
+	setIsInstalled; // This reference prevents the unused variable warning
 
 	useEffect(() => {
+		// Check if app is already installed
+		const checkIfInstalled = () => {
+			// Check if running in standalone mode (PWA installed)
+			if (window.matchMedia("(display-mode: standalone)").matches) {
+				setIsInstalled(true);
+				return true;
+			}
+			// Check if running in a WebView (mobile app)
+			if ((window.navigator as ExtendedNavigator).standalone === true) {
+				setIsInstalled(true);
+				return true;
+			}
+			return false;
+		};
+
+		if (checkIfInstalled()) {
+			return; // Don't show installer if already installed
+		}
+
+		// Check if install was permanently dismissed
+		const permanentlyDismissed = localStorage.getItem(
+			"pwa-install-permanently-dismissed",
+		);
+		if (permanentlyDismissed === "true") {
+			return;
+		}
+
+		// Check if install was recently dismissed (24 hours)
+		const recentlyDismissed = localStorage.getItem("pwa-install-dismissed");
+		if (recentlyDismissed) {
+			const dismissedTime = Number.parseInt(recentlyDismissed);
+			const now = Date.now();
+			const hoursSinceDismissed = (now - dismissedTime) / (1000 * 60 * 60);
+
+			if (hoursSinceDismissed < 24) {
+				return;
+			}
+		}
+
 		// Register service worker
 		if ("serviceWorker" in navigator) {
 			window.addEventListener("load", () => {
@@ -85,19 +133,15 @@ export default function PWAInstaller() {
 		localStorage.setItem("pwa-install-dismissed", Date.now().toString());
 	};
 
+	const handlePermanentDismiss = () => {
+		setShowInstallPrompt(false);
+		// Hide permanently
+		localStorage.setItem("pwa-install-permanently-dismissed", "true");
+	};
+
 	// Check if install was previously dismissed
 	useEffect(() => {
-		const dismissed = localStorage.getItem("pwa-install-dismissed");
-		if (dismissed) {
-			const dismissedTime = Number.parseInt(dismissed);
-			const now = Date.now();
-			const hoursSinceDismissed = (now - dismissedTime) / (1000 * 60 * 60);
-
-			if (hoursSinceDismissed < 24) {
-				setShowInstallPrompt(false);
-				return;
-			}
-		}
+		// This check is now handled in the main useEffect above
 	}, []);
 
 	if (!showInstallPrompt) return null;
@@ -133,7 +177,14 @@ export default function PWAInstaller() {
 					onClick={handleDismissInstall}
 					className="px-3 py-1 text-sm text-white/80 hover:text-white"
 				>
-					Not now
+					Later
+				</button>
+				<button
+					type="button"
+					onClick={handlePermanentDismiss}
+					className="px-3 py-1 text-sm text-white/60 hover:text-white/80"
+				>
+					Never
 				</button>
 			</div>
 		</div>

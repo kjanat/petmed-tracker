@@ -115,7 +115,7 @@ export default function PetsPage() {
 										type="button"
 										className="mt-2 font-medium text-blue-600 text-sm hover:text-blue-700"
 										onClick={() => {
-											// Download QR code as PNG
+											// Download QR code as high-resolution PNG
 											const qrContainer = document.querySelector(
 												`#qr-code-${pet.id}`,
 											);
@@ -123,7 +123,23 @@ export default function PetsPage() {
 											if (svg) {
 												const canvas = document.createElement("canvas");
 												const ctx = canvas.getContext("2d");
-												const data = new XMLSerializer().serializeToString(svg);
+
+												// High resolution settings
+												const scaleFactor = 4; // 4x resolution
+												const baseSize = 200;
+												const highResSize = baseSize * scaleFactor;
+
+												canvas.width = highResSize;
+												canvas.height = highResSize;
+
+												// Create a higher resolution SVG
+												const svgClone = svg.cloneNode(true) as SVGElement;
+												svgClone.setAttribute("width", highResSize.toString());
+												svgClone.setAttribute("height", highResSize.toString());
+
+												const data = new XMLSerializer().serializeToString(
+													svgClone,
+												);
 												const DOMURL = window.URL || window.webkitURL || window;
 												const img = new Image();
 												const svgBlob = new Blob([data], {
@@ -132,21 +148,27 @@ export default function PetsPage() {
 												const url = DOMURL.createObjectURL(svgBlob);
 
 												img.onload = () => {
-													canvas.width = img.width;
-													canvas.height = img.height;
-													ctx?.drawImage(img, 0, 0);
+													// Enable smooth scaling
+													if (ctx) {
+														ctx.imageSmoothingEnabled = false; // For crisp pixels
+														ctx.drawImage(img, 0, 0, highResSize, highResSize);
+													}
 													DOMURL.revokeObjectURL(url);
 
-													canvas.toBlob((blob) => {
-														if (blob) {
-															const url = URL.createObjectURL(blob);
-															const a = document.createElement("a");
-															a.href = url;
-															a.download = `${pet.name}-medication-qr.png`;
-															a.click();
-															URL.revokeObjectURL(url);
-														}
-													});
+													canvas.toBlob(
+														(blob) => {
+															if (blob) {
+																const url = URL.createObjectURL(blob);
+																const a = document.createElement("a");
+																a.href = url;
+																a.download = `${pet.name}-medication-qr-${highResSize}px.png`;
+																a.click();
+																URL.revokeObjectURL(url);
+															}
+														},
+														"image/png",
+														1.0,
+													); // Maximum quality
 												};
 
 												img.src = url;
