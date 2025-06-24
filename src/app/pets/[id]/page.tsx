@@ -398,7 +398,9 @@ export default function PetDetailsPage() {
 												<CheckCircle size={16} />
 												<span className="text-xs">
 													{med.logs[0]?.createdAt
-														? new Date(med.logs[0].createdAt).toLocaleDateString()
+														? new Date(
+																med.logs[0].createdAt,
+															).toLocaleDateString()
 														: "No date"}
 												</span>
 											</div>
