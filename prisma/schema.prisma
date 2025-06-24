@@ -54,6 +54,14 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
 model User {
     id            String    @id @default(cuid())
     name          String?
@@ -63,12 +71,116 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+
+    // Pet medication tracking relationships
+    userPets        UserPet[]
+    medicationLogs  MedicationLog[]
+    foodLogs        FoodLog[]
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+// Pet Management
+model Pet {
+    id          String    @id @default(cuid())
+    name        String
+    species     String?   // dog, cat, bird, etc.
+    breed       String?
+    birthDate   DateTime?
+    weight      Float?
+    notes       String?
+    qrCodeId    String    @unique @default(cuid()) // For QR code URLs
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 
-    @@unique([identifier, token])
+    // Relationships
+    userPets        UserPet[]
+    medications     Medication[]
+    foodSchedules   FoodSchedule[]
+}
+
+model UserPet {
+    id        String   @id @default(cuid())
+    userId    String
+    petId     String
+    role      String   @default("owner") // owner, caregiver
+    createdAt DateTime @default(now())
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    pet  Pet  @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, petId])
+}
+
+// Medication Management
+model Medication {
+    id           String    @id @default(cuid())
+    petId        String
+    name         String
+    dosage       String?   // "5mg", "1 tablet", etc.
+    unit         String?   // "ml", "tablets", "drops"
+    instructions String?
+    isActive     Boolean   @default(true)
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
+
+    pet                Pet                 @relation(fields: [petId], references: [id], onDelete: Cascade)
+    schedules          MedicationSchedule[]
+    logs               MedicationLog[]
+}
+
+model MedicationSchedule {
+    id            String   @id @default(cuid())
+    medicationId  String
+    scheduleType  String   // "daily", "weekly", "custom"
+    times         String   // JSON array of times ["08:00", "20:00"]
+    daysOfWeek    String?  // JSON array [1,2,3,4,5] for Mon-Fri
+    startDate     DateTime @default(now())
+    endDate       DateTime?
+    isActive      Boolean  @default(true)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    medication Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+}
+
+model MedicationLog {
+    id             String    @id @default(cuid())
+    medicationId   String
+    scheduledTime  DateTime  // When it was supposed to be given
+    actualTime     DateTime? // When it was actually given
+    givenByUserId  String?   // Who gave it
+    notes          String?
+    status         String    @default("pending") // "given", "missed", "skipped", "pending"
+    createdAt      DateTime  @default(now())
+
+    medication Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+    givenBy    User?      @relation(fields: [givenByUserId], references: [id])
+}
+
+// Food Scheduling (Optional)
+model FoodSchedule {
+    id           String    @id @default(cuid())
+    petId        String
+    feedingTimes String    // JSON array of times ["07:00", "19:00"]
+    portion      String?   // "1 cup", "50g", etc.
+    foodType     String?
+    instructions String?
+    isActive     Boolean   @default(true)
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
+
+    pet  Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+    logs FoodLog[]
+}
+
+model FoodLog {
+    id             String       @id @default(cuid())
+    foodScheduleId String
+    scheduledTime  DateTime
+    actualTime     DateTime?
+    givenByUserId  String?
+    notes          String?
+    createdAt      DateTime     @default(now())
+
+    foodSchedule FoodSchedule @relation(fields: [foodScheduleId], references: [id], onDelete: Cascade)
+    givenBy      User?        @relation(fields: [givenByUserId], references: [id])
 }
