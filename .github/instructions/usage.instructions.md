@@ -2,9 +2,9 @@
 applyTo: '**'
 ---
 
-# T3-App Usage Instructions
+# PetMed Tracker Usage Instructions
 
-This document provides step-by-step instructions for setting up, developing, and deploying the T3-based application powered by Next.js, TRPC, Prisma, NextAuth v5, Tailwind CSS, and Bun.
+This document provides step-by-step instructions for setting up, developing, and deploying the PetMed Tracker application powered by Next.js, TRPC, Prisma, NextAuth v5, Tailwind CSS, and Bun.
 
 ---
 
@@ -34,8 +34,8 @@ This document provides step-by-step instructions for setting up, developing, and
 1. **Clone the repository**
 
    ```bash
-   git clone <repo-url> t3-app
-   cd t3-app
+   git clone https://github.com/kjanat/petmed-tracker.git
+   cd petmed-tracker
    ```
 
 2. **Install dependencies**
