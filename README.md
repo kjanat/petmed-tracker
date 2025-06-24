@@ -27,3 +27,59 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+## Directory Structure
+
+<!-- tree -L 3 --gitignore -I node_modules -->
+
+```graphql
+.
+├── .env
+├── .gitignore
+├── biome.jsonc
+├── bun.lock
+├── next.config.js
+├── package.json
+├── postcss.config.js
+├── prisma
+│   ├── db.sqlite
+│   └── schema.prisma
+├── public
+│   ├── favicon.ico
+│   ├── icon-192.png
+│   ├── icon-192.svg
+│   ├── icon-512.png
+│   ├── icon-512.svg
+│   ├── manifest.json
+│   ├── offline.html
+│   ├── sw.js
+│   └── sw.ts
+├── README.md
+├── src
+│   ├── app
+│   │   ├── api
+│   │   ├── _components
+│   │   ├── home.tsx
+│   │   ├── layout.tsx
+│   │   ├── not-found.tsx
+│   │   ├── page.tsx
+│   │   ├── pets
+│   │   ├── profile
+│   │   ├── qr
+│   │   └── qr-scanner
+│   ├── components
+│   │   ├── MobileLayout.tsx
+│   │   └── PWAInstaller.tsx
+│   ├── env.js
+│   ├── server
+│   │   ├── api
+│   │   ├── auth
+│   │   └── db.ts
+│   ├── styles
+│   │   └── globals.css
+│   └── trpc
+│       ├── query-client.ts
+│       ├── react.tsx
+│       └── server.ts
+└── tsconfig.json
+```

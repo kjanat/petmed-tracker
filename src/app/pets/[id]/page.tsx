@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/trpc/react";
@@ -25,8 +25,11 @@ import {
   Settings,
   FileText,
   Coffee,
-} from "lucide-react";
+  Trash2,
+  X,
+} from 'lucide-react';
 import QRCode from "react-qr-code";
+import { toast } from 'react-hot-toast';
 
 export default function PetDetailsPage() {
   const params = useParams();
@@ -37,6 +40,8 @@ export default function PetDetailsPage() {
   const [editingPet, setEditingPet] = useState(false);
   const [showAddCaregiver, setShowAddCaregiver] = useState(false);
   const [caregiverEmail, setCaregiverEmail] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: pet, isLoading, refetch } = api.pet.getById.useQuery({ id: petId });
   const { data: medications } = api.medication.getByPet.useQuery({ petId });
@@ -61,6 +66,32 @@ export default function PetDetailsPage() {
       refetch();
     },
   });
+
+  const deletePetMutation = api.pet.delete.useMutation({
+    onSuccess: (result) => {
+      toast.success(`${result.deletedPet} has been deleted successfully`);
+      router.push('/pets');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Close settings dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showSettings && !target.closest('.settings-dropdown')) {
+        setShowSettings(false);
+      }
+    };
+
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showSettings]);
 
   if (isLoading) {
     return (
@@ -101,7 +132,7 @@ export default function PetDetailsPage() {
     <MobileLayout activeTab="pets">
       <div className="px-4 py-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 relative">
           <button
             onClick={() => router.back()}
             className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -109,12 +140,52 @@ export default function PetDetailsPage() {
             ←
           </button>
           <h1 className="text-xl font-bold text-gray-900">{pet.name}</h1>
-          <button
-            onClick={() => setEditingPet(true)}
-            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          >
-            <Edit3 size={20} />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <MoreVertical size={20} />
+            </button>
+
+            {/* Settings Dropdown */}
+            {showSettings && (
+              <div className="settings-dropdown absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <button
+                  onClick={() => {
+                    setEditingPet(true);
+                    setShowSettings(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Edit3 size={16} />
+                  Edit Pet Details
+                </button>
+                <button
+                  onClick={() => {
+                    setShowQr(true);
+                    setShowSettings(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <QrCode size={16} />
+                  Show QR Code
+                </button>
+                <div className="border-t border-gray-100">
+                  <button
+                    onClick={() => {
+                      setShowDeleteConfirm(true);
+                      setShowSettings(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                    Delete Pet
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Pet Info Card */}
@@ -124,13 +195,16 @@ export default function PetDetailsPage() {
               <Heart className="text-blue-600" size={24} />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 mb-1">{pet.name}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                {pet.name}
+              </h2>
               {pet.species && (
                 <p className="text-gray-600 text-sm mb-2">
-                  {pet.species}{pet.breed && ` • ${pet.breed}`}
+                  {pet.species}
+                  {pet.breed && ` • ${pet.breed}`}
                 </p>
               )}
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 {pet.birthDate && (
                   <div className="flex items-center gap-2 text-gray-600">
@@ -161,15 +235,21 @@ export default function PetDetailsPage() {
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
             <div className="text-center">
-              <div className="text-lg font-semibold text-blue-600">{activeMedications.length}</div>
+              <div className="text-lg font-semibold text-blue-600">
+                {activeMedications.length}
+              </div>
               <div className="text-xs text-gray-500">Active Meds</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-green-600">{pet.userPets?.length || 0}</div>
+              <div className="text-lg font-semibold text-green-600">
+                {pet.userPets?.length || 0}
+              </div>
               <div className="text-xs text-gray-500">Caregivers</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-purple-600">{recentLogs.length}</div>
+              <div className="text-lg font-semibold text-purple-600">
+                {recentLogs.length}
+              </div>
               <div className="text-xs text-gray-500">Recent Logs</div>
             </div>
           </div>
@@ -184,10 +264,12 @@ export default function PetDetailsPage() {
             <Pill size={20} />
             <div>
               <div className="font-medium">Medications</div>
-              <div className="text-xs opacity-90">{activeMedications.length} active</div>
+              <div className="text-xs opacity-90">
+                {activeMedications.length} active
+              </div>
             </div>
           </Link>
-          
+
           <Link
             href={`/pets/${pet.id}/food`}
             className="flex items-center gap-3 bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors"
@@ -199,7 +281,7 @@ export default function PetDetailsPage() {
             </div>
           </Link>
         </div>
-        
+
         {/* Secondary Actions */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <Link
@@ -212,7 +294,7 @@ export default function PetDetailsPage() {
               <div className="text-xs opacity-90">Calendar view</div>
             </div>
           </Link>
-          
+
           <button
             onClick={() => setShowQr(true)}
             className="flex items-center gap-3 bg-gray-100 text-gray-700 p-4 rounded-lg hover:bg-gray-200 transition-colors"
@@ -231,7 +313,9 @@ export default function PetDetailsPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Pill className="text-blue-600" size={20} />
-                <h3 className="font-semibold text-gray-900">Current Medications</h3>
+                <h3 className="font-semibold text-gray-900">
+                  Current Medications
+                </h3>
               </div>
               <Link
                 href={`/pets/${pet.id}/medications/new`}
@@ -240,40 +324,46 @@ export default function PetDetailsPage() {
                 <Plus size={16} />
               </Link>
             </div>
-            
+
             <div className="space-y-3">
               {activeMedications.slice(0, 3).map((med) => (
-                <div key={med.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div
+                  key={med.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
                   <div>
                     <div className="font-medium text-gray-900">{med.name}</div>
                     {med.dosage && (
                       <div className="text-sm text-gray-600">
-                        {med.dosage}{med.unit ? ` ${med.unit}` : ''}
+                        {med.dosage}
+                        {med.unit ? ` ${med.unit}` : ''}
                       </div>
                     )}
                     <div className="text-xs text-gray-500">
-                      {med.schedules?.length || 0} schedule{med.schedules?.length !== 1 ? 's' : ''}
+                      {med.schedules?.length || 0} schedule
+                      {med.schedules?.length !== 1 ? 's' : ''}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
-                    {med.logs && med.logs.length > 0 ? (
+                    {med.logs && med.logs.length > 0 ?
                       <div className="flex items-center gap-1 text-green-600">
                         <CheckCircle size={16} />
                         <span className="text-xs">
-                          {new Date(med.logs[0]!.createdAt).toLocaleDateString()}
+                          {new Date(
+                            med.logs[0]!.createdAt
+                          ).toLocaleDateString()}
                         </span>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-1 text-amber-600">
+                    : <div className="flex items-center gap-1 text-amber-600">
                         <AlertCircle size={16} />
                         <span className="text-xs">No recent doses</span>
                       </div>
-                    )}
+                    }
                   </div>
                 </div>
               ))}
-              
+
               {activeMedications.length > 3 && (
                 <Link
                   href={`/pets/${pet.id}/medications`}
@@ -293,10 +383,13 @@ export default function PetDetailsPage() {
               <Activity className="text-green-600" size={20} />
               <h3 className="font-semibold text-gray-900">Recent Activity</h3>
             </div>
-            
+
             <div className="space-y-3">
               {recentLogs.slice(0, 5).map((log) => (
-                <div key={log.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                <div
+                  key={log.id}
+                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                >
                   <div className="bg-green-100 p-1 rounded-full mt-1">
                     <CheckCircle className="text-green-600" size={12} />
                   </div>
@@ -306,11 +399,13 @@ export default function PetDetailsPage() {
                     </div>
                     <div className="text-xs text-gray-600 mb-1">
                       Status: {log.status}
-                      {log.actualTime && ` • Given at ${new Date(log.actualTime).toLocaleTimeString()}`}
+                      {log.actualTime &&
+                        ` • Given at ${new Date(log.actualTime).toLocaleTimeString()}`}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {new Date(log.createdAt).toLocaleString()} 
-                      {log.givenBy && ` • by ${log.givenBy.name || log.givenBy.email}`}
+                      {new Date(log.createdAt).toLocaleString()}
+                      {log.givenBy &&
+                        ` • by ${log.givenBy.name || log.givenBy.email}`}
                     </div>
                     {log.notes && (
                       <div className="text-xs text-gray-600 mt-1 italic">
@@ -338,10 +433,13 @@ export default function PetDetailsPage() {
               <Plus size={16} />
             </button>
           </div>
-          
+
           <div className="space-y-3">
             {pet.userPets?.map((up) => (
-              <div key={up.userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div
+                key={up.userId}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="flex items-center gap-3">
                   <div className="bg-purple-100 p-2 rounded-full">
                     <User className="text-purple-600" size={16} />
@@ -355,11 +453,15 @@ export default function PetDetailsPage() {
                     </div>
                   </div>
                 </div>
-                
-                {up.role !== "owner" && (
+
+                {up.role !== 'owner' && (
                   <button
                     onClick={() => {
-                      if (confirm(`Remove ${up.user.name || up.user.email} as a caregiver?`)) {
+                      if (
+                        confirm(
+                          `Remove ${up.user.name || up.user.email} as a caregiver?`
+                        )
+                      ) {
                         removeCaregiverMutation.mutate({
                           petId: pet.id,
                           userId: up.userId,
@@ -388,7 +490,7 @@ export default function PetDetailsPage() {
               <div className="text-xs opacity-75">View calendar</div>
             </div>
           </Link>
-          
+
           <button
             onClick={() => setEditingPet(true)}
             className="flex items-center gap-3 bg-gray-100 text-gray-700 p-4 rounded-lg hover:bg-gray-200 transition-colors"
@@ -409,19 +511,23 @@ export default function PetDetailsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
               {pet.name}'s QR Code
             </h3>
-            
-            <div id="qr-code-modal" className="bg-white p-4 rounded-lg text-center mb-4">
+
+            <div
+              id="qr-code-modal"
+              className="bg-white p-4 rounded-lg text-center mb-4"
+            >
               <QRCode
                 value={`${window.location.origin}/qr?id=${pet.qrCodeId}`}
                 size={200}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
               />
             </div>
-            
+
             <p className="text-sm text-gray-600 text-center mb-4">
-              Share this QR code with other caregivers or keep it handy for emergency access
+              Share this QR code with other caregivers or keep it handy for
+              emergency access
             </p>
-            
+
             <div className="flex gap-2">
               <button
                 onClick={() => setShowQr(false)}
@@ -440,15 +546,17 @@ export default function PetDetailsPage() {
                     const data = new XMLSerializer().serializeToString(svg);
                     const DOMURL = window.URL || window.webkitURL || window;
                     const img = new Image();
-                    const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+                    const svgBlob = new Blob([data], {
+                      type: 'image/svg+xml;charset=utf-8',
+                    });
                     const url = DOMURL.createObjectURL(svgBlob);
-                    
+
                     img.onload = () => {
                       canvas.width = img.width;
                       canvas.height = img.height;
                       ctx?.drawImage(img, 0, 0);
                       DOMURL.revokeObjectURL(url);
-                      
+
                       canvas.toBlob((blob) => {
                         if (blob) {
                           const url = URL.createObjectURL(blob);
@@ -460,13 +568,78 @@ export default function PetDetailsPage() {
                         }
                       });
                     };
-                    
+
                     img.src = url;
                   }
                 }}
                 className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
                 Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-100 p-2 rounded-full">
+                <Trash2 className="text-red-600" size={20} />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Delete {pet.name}?
+              </h3>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-gray-600 mb-4">
+                This action cannot be undone. This will permanently delete{' '}
+                <strong>{pet.name}</strong> and all associated data including:
+              </p>
+
+              <ul className="text-sm text-gray-600 space-y-1 mb-4">
+                <li>
+                  • {activeMedications.length} active medication
+                  {activeMedications.length !== 1 ? 's' : ''}
+                </li>
+                <li>• All medication logs and history</li>
+                <li>• All food schedules and logs</li>
+                <li>
+                  • {pet.userPets?.length || 0} caregiver relationship
+                  {(pet.userPets?.length || 0) !== 1 ? 's' : ''}
+                </li>
+              </ul>
+
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-800 text-sm font-medium">
+                  ⚠️ This action is permanent and cannot be reversed.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deletePetMutation.mutate({ id: pet.id });
+                }}
+                disabled={deletePetMutation.isPending}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {deletePetMutation.isPending ?
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Deleting...
+                  </div>
+                : 'Delete Pet'}
               </button>
             </div>
           </div>
@@ -480,7 +653,7 @@ export default function PetDetailsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Add Caregiver
             </h3>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -493,12 +666,12 @@ export default function PetDetailsPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            
+
             <div className="flex gap-2">
               <button
                 onClick={() => {
                   setShowAddCaregiver(false);
-                  setCaregiverEmail("");
+                  setCaregiverEmail('');
                 }}
                 className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
               >
@@ -510,17 +683,19 @@ export default function PetDetailsPage() {
                     addCaregiverMutation.mutate({
                       petId: pet.id,
                       email: caregiverEmail.trim(),
-                      role: "caregiver",
+                      role: 'caregiver',
                     });
                   }
                 }}
-                disabled={!caregiverEmail.trim() || addCaregiverMutation.isPending}
+                disabled={
+                  !caregiverEmail.trim() || addCaregiverMutation.isPending
+                }
                 className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
-                {addCaregiverMutation.isPending ? "Adding..." : "Add"}
+                {addCaregiverMutation.isPending ? 'Adding...' : 'Add'}
               </button>
             </div>
-            
+
             {addCaregiverMutation.error && (
               <p className="text-red-600 text-sm mt-2">
                 {addCaregiverMutation.error.message}
@@ -537,21 +712,25 @@ export default function PetDetailsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Edit {pet.name}
             </h3>
-            
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const data = Object.fromEntries(formData);
-                
+
                 updatePetMutation.mutate({
                   id: pet.id,
                   name: data.name as string,
-                  species: data.species as string || undefined,
-                  breed: data.breed as string || undefined,
-                  birthDate: data.birthDate ? new Date(data.birthDate as string) : undefined,
-                  weight: data.weight ? parseFloat(data.weight as string) : undefined,
-                  notes: data.notes as string || undefined,
+                  species: (data.species as string) || undefined,
+                  breed: (data.breed as string) || undefined,
+                  birthDate:
+                    data.birthDate ?
+                      new Date(data.birthDate as string)
+                    : undefined,
+                  weight:
+                    data.weight ? parseFloat(data.weight as string) : undefined,
+                  notes: (data.notes as string) || undefined,
                 });
               }}
               className="space-y-4"
@@ -568,7 +747,7 @@ export default function PetDetailsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -577,12 +756,12 @@ export default function PetDetailsPage() {
                   <input
                     name="species"
                     type="text"
-                    defaultValue={pet.species || ""}
+                    defaultValue={pet.species || ''}
                     placeholder="Dog, Cat, etc."
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Breed
@@ -590,13 +769,13 @@ export default function PetDetailsPage() {
                   <input
                     name="breed"
                     type="text"
-                    defaultValue={pet.breed || ""}
+                    defaultValue={pet.breed || ''}
                     placeholder="Golden Retriever"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -605,11 +784,15 @@ export default function PetDetailsPage() {
                   <input
                     name="birthDate"
                     type="date"
-                    defaultValue={pet.birthDate ? new Date(pet.birthDate).toISOString().split('T')[0] : ""}
+                    defaultValue={
+                      pet.birthDate ?
+                        new Date(pet.birthDate).toISOString().split('T')[0]
+                      : ''
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Weight (lbs)
@@ -619,12 +802,12 @@ export default function PetDetailsPage() {
                     type="number"
                     step="0.1"
                     min="0"
-                    defaultValue={pet.weight || ""}
+                    defaultValue={pet.weight || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Notes
@@ -632,12 +815,12 @@ export default function PetDetailsPage() {
                 <textarea
                   name="notes"
                   rows={3}
-                  defaultValue={pet.notes || ""}
+                  defaultValue={pet.notes || ''}
                   placeholder="Any special notes about your pet..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
-              
+
               <div className="flex gap-2 pt-4">
                 <button
                   type="button"
@@ -651,11 +834,11 @@ export default function PetDetailsPage() {
                   disabled={updatePetMutation.isPending}
                   className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
-                  {updatePetMutation.isPending ? "Saving..." : "Save Changes"}
+                  {updatePetMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
-            
+
             {updatePetMutation.error && (
               <p className="text-red-600 text-sm mt-2">
                 {updatePetMutation.error.message}

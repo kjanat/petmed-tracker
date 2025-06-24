@@ -266,4 +266,60 @@ export const petRouter = createTRPCRouter({
 
       return { success: true };
     }),
+
+  // Delete a pet (only owners can delete)
+  delete: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Check if user is an owner of this pet
+      const userPet = await ctx.db.userPet.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          petId: input.id,
+          role: "owner", // Only owners can delete pets
+        },
+      });
+
+      if (!userPet) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You must be an owner to delete this pet",
+        });
+      }
+
+      // Get pet details for confirmation
+      const pet = await ctx.db.pet.findUnique({
+        where: { id: input.id },
+        select: {
+          name: true,
+          medications: { where: { isActive: true }, select: { id: true } },
+          foodSchedules: { where: { isActive: true }, select: { id: true } },
+          userPets: { select: { id: true } },
+        },
+      });
+
+      if (!pet) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pet not found",
+        });
+      }
+
+      // Delete the pet (cascading will handle related data)
+      await ctx.db.pet.delete({
+        where: { id: input.id },
+      });
+
+      return { 
+        success: true, 
+        deletedPet: pet.name,
+        deletedRelations: {
+          medications: pet.medications.length,
+          foodSchedules: pet.foodSchedules.length,
+          caregivers: pet.userPets.length,
+        }
+      };
+    }),
 });
