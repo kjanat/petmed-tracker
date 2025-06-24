@@ -29,7 +29,6 @@ export default function EditMedicationPage() {
 	const dosageId = useId();
 	const unitId = useId();
 	const instructionsId = useId();
-	const statusGroupId = useId();
 
 	const params = useParams();
 	const router = useRouter();

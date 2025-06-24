@@ -70,7 +70,6 @@ export default function NewMedicationPage() {
 	});
 
 	const [showSuggestions, setShowSuggestions] = useState(false);
-	const [createSchedule, setCreateSchedule] = useState(true);
 
 	const { data: pet } = api.pet.getById.useQuery({ id: petId });
 
@@ -95,22 +94,6 @@ export default function NewMedicationPage() {
 			console.error("Failed to create medication:", error);
 		}
 	};
-
-	const handleMedicationSelect = (
-		medication: (typeof COMMON_MEDICATIONS)[0],
-	) => {
-		setFormData((prev) => ({
-			...prev,
-			name: medication.name,
-		}));
-		setShowSuggestions(false);
-	};
-
-	const filteredSuggestions = COMMON_MEDICATIONS.filter(
-		(med) =>
-			med.name.toLowerCase().includes(formData.name.toLowerCase()) ||
-			med.type.toLowerCase().includes(formData.name.toLowerCase()),
-	);
 
 	if (!pet) {
 		return (

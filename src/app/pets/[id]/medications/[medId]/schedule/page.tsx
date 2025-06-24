@@ -31,7 +31,6 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 	const scheduleTypeId = useId();
 	const startDateId = useId();
 	const endDateId = useId();
-	const daysOfWeekLabelId = useId();
 	const timesLabelId = useId();
 
 	const [resolvedParams, setResolvedParams] = useState<{
