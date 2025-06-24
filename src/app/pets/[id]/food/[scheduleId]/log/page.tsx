@@ -33,9 +33,9 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
   const router = useRouter();
 
   // Resolve params
-  useState(() => {
+  useEffect(() => {
     params.then(setResolvedParams);
-  });
+  }, [params]);
 
   const { data: pet } = api.pet.getById.useQuery(
     { id: resolvedParams?.id ?? "" },

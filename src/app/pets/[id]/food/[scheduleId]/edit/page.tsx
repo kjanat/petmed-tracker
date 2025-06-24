@@ -61,9 +61,9 @@ export default function EditFoodSchedulePage({ params }: EditFoodSchedulePagePro
   const router = useRouter();
 
   // Resolve params
-  useState(() => {
+  useEffect(() => {
     params.then(setResolvedParams);
-  });
+  }, [params]);
 
   const { data: pet } = api.pet.getById.useQuery(
     { id: resolvedParams?.id ?? "" },

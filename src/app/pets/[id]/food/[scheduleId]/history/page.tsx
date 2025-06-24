@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
 import MobileLayout from "@/components/MobileLayout";
@@ -36,9 +36,9 @@ export default function FoodHistoryPage({ params }: FoodHistoryPageProps) {
   const router = useRouter();
 
   // Resolve params
-  useState(() => {
+  useEffect(() => {
     params.then(setResolvedParams);
-  });
+  }, [params]);
 
   const { data: pet } = api.pet.getById.useQuery(
     { id: resolvedParams?.id ?? "" },
