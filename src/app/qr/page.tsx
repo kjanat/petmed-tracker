@@ -5,7 +5,6 @@ import {
 	Check,
 	CheckCircle,
 	Clock,
-	FileText,
 	Heart,
 	Plus,
 	X,
@@ -18,7 +17,7 @@ import { api } from "@/trpc/react";
 
 function QRPageContent() {
 	const searchParams = useSearchParams();
-	const qrCodeId = searchParams.get("id");
+	const qrCodeId = searchParams.get("id") ?? undefined;
 	const [selectedMedication, setSelectedMedication] = useState<string | null>(
 		null,
 	);
@@ -29,12 +28,17 @@ function QRPageContent() {
 		notes: "",
 	});
 
+	// Unique IDs for accessibility
+	const statusId = useId();
+	const caregiverNameId = useId();
+	const notesId = useId();
+
 	const {
 		data: scheduleData,
 		isLoading,
 		refetch,
 	} = api.qrCode.getTodayScheduleByQrCode.useQuery(
-		{ qrCodeId: qrCodeId! },
+		qrCodeId ? { qrCodeId } : { qrCodeId: "" },
 		{
 			enabled: !!qrCodeId,
 			refetchInterval: 30000,
@@ -123,12 +127,7 @@ function QRPageContent() {
 	}
 
 	const { pet, schedule } = scheduleData;
-
-	// Get current time for status determination
 	const now = new Date();
-
-	// Calculate status summary
-	const _totalMeds = schedule.length;
 	const givenMeds = schedule.filter((item) => item.status === "given").length;
 	const pendingMeds = schedule.filter(
 		(item) => item.status === "pending",
@@ -146,15 +145,12 @@ function QRPageContent() {
 						<Heart className="mr-2 text-blue-600" size={24} />
 						<h1 className="font-bold text-2xl text-gray-900">{pet.name}</h1>
 					</div>
-
 					{pet.species && (
 						<p className="mb-4 text-gray-600">
 							{pet.species}
 							{pet.breed && ` • ${pet.breed}`}
 						</p>
 					)}
-
-					{/* Status Summary */}
 					<div className="mt-4 grid grid-cols-3 gap-4">
 						<div className="text-center">
 							<div className="font-bold text-2xl text-green-600">
@@ -176,27 +172,29 @@ function QRPageContent() {
 						</div>
 					</div>
 				</div>
-
 				{/* Today's Schedule */}
 				<div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
 					<h2 className="mb-4 font-semibold text-gray-900 text-lg">
 						Today's Medication Schedule
 					</h2>
-
 					{schedule.length === 0 ? (
 						<p className="py-8 text-center text-gray-600">
 							No medications scheduled for today
 						</p>
 					) : (
 						<div className="space-y-4">
-							{schedule.map((item, index) => {
+							{schedule.map((item) => {
 								const scheduledTime = new Date(item.scheduledTime);
 								const isOverdue =
 									item.status === "pending" && scheduledTime < now;
 
 								return (
 									<div
-										key={index}
+										key={
+											item.medicationId ||
+											item.logId ||
+											`${item.medicationName}-${scheduledTime.toISOString()}`
+										}
 										className={`rounded-lg border-2 p-4 ${
 											item.status === "given"
 												? "border-green-200 bg-green-50"
@@ -219,7 +217,6 @@ function QRPageContent() {
 														{item.medicationName}
 													</h3>
 												</div>
-
 												<div className="text-gray-700 text-sm">
 													<div className="font-medium">
 														Scheduled:{" "}
@@ -229,21 +226,18 @@ function QRPageContent() {
 															hour12: true,
 														})}
 													</div>
-
 													{item.dosage && (
 														<div>
 															Dosage: {item.dosage}
 															{item.unit ? ` ${item.unit}` : ""}
 														</div>
 													)}
-
 													{item.instructions && (
 														<div className="mt-1 text-gray-600">
 															{item.instructions}
 														</div>
 													)}
 												</div>
-
 												{item.status === "given" &&
 													item.givenBy &&
 													item.actualTime && (
@@ -260,7 +254,6 @@ function QRPageContent() {
 														</div>
 													)}
 											</div>
-
 											<div className="ml-4 space-y-2">
 												{item.status === "given" ? (
 													<span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 font-medium text-green-800 text-xs">
@@ -275,8 +268,6 @@ function QRPageContent() {
 														Pending
 													</span>
 												)}
-
-												{/* Quick Log Button */}
 												{item.status !== "given" && (
 													<button
 														type="button"
@@ -300,7 +291,6 @@ function QRPageContent() {
 						</div>
 					)}
 				</div>
-
 				{/* Emergency Contact Info */}
 				<div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
 					<h3 className="mb-2 font-semibold text-blue-900">Emergency Access</h3>
@@ -309,7 +299,6 @@ function QRPageContent() {
 						Emergency caregivers can log doses directly from this page.
 					</p>
 				</div>
-
 				{/* Log Dose Modal */}
 				{showLogForm && (
 					<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -317,14 +306,16 @@ function QRPageContent() {
 							<h3 className="mb-4 font-semibold text-gray-900 text-lg">
 								Log Medication Dose
 							</h3>
-
 							<div className="space-y-4">
 								{/* Status Selection */}
 								<div>
-									<label htmlFor="status" className="mb-2 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor={statusId}
+										className="mb-2 block font-medium text-gray-700 text-sm"
+									>
 										Status *
 									</label>
-									<div id="status" className="space-y-2">
+									<div id={statusId} className="space-y-2">
 										{[
 											{
 												value: "given",
@@ -351,23 +342,22 @@ function QRPageContent() {
 												onClick={() =>
 													setLogForm((prev) => ({
 														...prev,
-														status: option.value as any,
+														status: option.value as
+															| "given"
+															| "missed"
+															| "skipped",
 													}))
 												}
-												className={`w-full rounded-lg border-2 p-3 text-left transition-colors ${
-													logForm.status === option.value
-														? `border-${option.color}-500 bg-${option.color}-50`
-														: "border-gray-200 hover:border-gray-300"
-												}`}
+												className={`w-full rounded-lg border-2 p-3 text-left transition-colors ${logForm.status === option.value ? `border-${option.color}-500 bg-${option.color}-50` : "border-gray-200 hover:border-gray-300"}`}
 											>
 												<div className="flex items-center gap-3">
 													<option.icon
 														size={20}
-														className={`${
+														className={
 															logForm.status === option.value
 																? `text-${option.color}-600`
 																: "text-gray-400"
-														}`}
+														}
 													/>
 													<span className="font-medium">{option.label}</span>
 												</div>
@@ -375,14 +365,16 @@ function QRPageContent() {
 										))}
 									</div>
 								</div>
-
 								{/* Caregiver Name */}
 								<div>
-									<label htmlFor="caregiverName" className="mb-2 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor={caregiverNameId}
+										className="mb-2 block font-medium text-gray-700 text-sm"
+									>
 										Your Name *
 									</label>
 									<input
-										id="caregiverName"
+										id={caregiverNameId}
 										type="text"
 										value={logForm.caregiverName}
 										onChange={(e) =>
@@ -395,26 +387,24 @@ function QRPageContent() {
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
 								</div>
-
 								{/* Notes */}
 								<div>
-									<label htmlFor="notes" className="mb-2 block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor={notesId}
+										className="mb-2 block font-medium text-gray-700 text-sm"
+									>
 										Notes (Optional)
 									</label>
 									<textarea
-										id="notes"
+										id={notesId}
 										value={logForm.notes}
 										onChange={(e) =>
-											setLogForm((prev) => ({
-												...prev,
-												notes: e.target.value,
-											}))
+											setLogForm((prev) => ({ ...prev, notes: e.target.value }))
 										}
 										placeholder="Add any additional notes"
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
 								</div>
-
 								{/* Form Actions */}
 								<div className="flex gap-3 pt-4">
 									<button
@@ -433,6 +423,7 @@ function QRPageContent() {
 										Cancel
 									</button>
 									<button
+										type="button"
 										onClick={handleSubmitLog}
 										disabled={
 											logDoseMutation.isPending || !logForm.caregiverName.trim()
@@ -456,7 +447,6 @@ function QRPageContent() {
 						</div>
 					</div>
 				)}
-
 				{/* Refresh Notice */}
 				<div className="mt-4 text-center">
 					<p className="text-gray-500 text-xs">

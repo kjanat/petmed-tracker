@@ -10,7 +10,7 @@ import {
 	X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { toast } from "react-hot-toast";
 import { api } from "@/trpc/react";
 
@@ -27,6 +27,13 @@ interface ScheduleFormData {
 }
 
 export default function MedicationSchedulePage({ params }: SchedulePageProps) {
+	// Generate unique IDs for form elements
+	const scheduleTypeId = useId();
+	const startDateId = useId();
+	const endDateId = useId();
+	const daysOfWeekLabelId = useId();
+	const timesLabelId = useId();
+
 	const [resolvedParams, setResolvedParams] = useState<{
 		id: string;
 		medId: string;
@@ -190,6 +197,7 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 							The medication you're looking for doesn't exist.
 						</p>
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
 						>
@@ -208,6 +216,7 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 				<div className="mx-auto max-w-md px-4 py-4">
 					<div className="flex items-center gap-3">
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -231,6 +240,7 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 							Current Schedules
 						</h2>
 						<button
+							type="button"
 							onClick={() => setShowAddSchedule(true)}
 							className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
 						>
@@ -243,6 +253,7 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 							<Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
 							<p className="mb-4 text-gray-600">No schedules created yet</p>
 							<button
+								type="button"
 								onClick={() => setShowAddSchedule(true)}
 								className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
 							>
@@ -303,12 +314,14 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 
 											<div className="flex gap-1">
 												<button
+													type="button"
 													onClick={() => setEditingSchedule(schedule.id)}
 													className="rounded p-1 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
 												>
 													<Edit2 className="h-4 w-4" />
 												</button>
 												<button
+													type="button"
 													onClick={() => {
 														deleteScheduleMutation.mutate({ id: schedule.id });
 													}}
@@ -334,6 +347,7 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 								Add New Schedule
 							</h3>
 							<button
+								type="button"
 								onClick={() => setShowAddSchedule(false)}
 								className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
 							>
@@ -344,10 +358,14 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 						<form onSubmit={handleSubmit} className="space-y-4">
 							{/* Schedule Type */}
 							<div>
-								<label className="mb-2 block font-medium text-gray-700 text-sm">
+								<label
+									htmlFor={scheduleTypeId}
+									className="mb-2 block font-medium text-gray-700 text-sm"
+								>
 									Schedule Type
 								</label>
 								<select
+									id={scheduleTypeId}
 									value={scheduleForm.scheduleType}
 									onChange={(e) =>
 										setScheduleForm((prev) => ({
@@ -369,7 +387,10 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 							{/* Times */}
 							<div>
 								<div className="mb-2 flex items-center justify-between">
-									<label className="block font-medium text-gray-700 text-sm">
+									<label
+										htmlFor={timesLabelId}
+										className="block font-medium text-gray-700 text-sm"
+									>
 										Times
 									</label>
 									<button
@@ -382,13 +403,18 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 								</div>
 								<div className="space-y-2">
 									{scheduleForm.times.map((time, index) => (
-										<div key={index} className="flex items-center gap-2">
+										<div
+											key={`time-${index}-${time}`}
+											className="flex items-center gap-2"
+										>
 											<input
+												id={index === 0 ? timesLabelId : undefined}
 												type="time"
 												value={time}
 												onChange={(e) =>
 													handleTimeChange(index, e.target.value)
 												}
+												aria-labelledby={timesLabelId}
 												className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 											/>
 											{scheduleForm.times.length > 1 && (
@@ -408,14 +434,14 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 							{/* Days of Week (for weekly/custom) */}
 							{(scheduleForm.scheduleType === "weekly" ||
 								scheduleForm.scheduleType === "custom") && (
-								<div>
-									<label className="mb-2 block font-medium text-gray-700 text-sm">
+								<fieldset>
+									<legend className="mb-2 block font-medium text-gray-700 text-sm">
 										Days of Week
-									</label>
+									</legend>
 									<div className="grid grid-cols-7 gap-1">
 										{dayNames.map((day, index) => (
 											<button
-												key={index}
+												key={`day-${index}-${day}`}
 												type="button"
 												onClick={() => handleDayToggle(index)}
 												className={`rounded px-2 py-1 font-medium text-xs transition-colors ${
@@ -428,17 +454,21 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 											</button>
 										))}
 									</div>
-								</div>
+								</fieldset>
 							)}
 
 							{/* Date Range (for custom) */}
 							{scheduleForm.scheduleType === "custom" && (
 								<div className="grid grid-cols-2 gap-4">
 									<div>
-										<label className="mb-1 block font-medium text-gray-700 text-sm">
+										<label
+											htmlFor={startDateId}
+											className="mb-1 block font-medium text-gray-700 text-sm"
+										>
 											Start Date
 										</label>
 										<input
+											id={startDateId}
 											type="date"
 											value={
 												scheduleForm.startDate?.toISOString().split("T")[0] ??
@@ -456,10 +486,14 @@ export default function MedicationSchedulePage({ params }: SchedulePageProps) {
 										/>
 									</div>
 									<div>
-										<label className="mb-1 block font-medium text-gray-700 text-sm">
+										<label
+											htmlFor={endDateId}
+											className="mb-1 block font-medium text-gray-700 text-sm"
+										>
 											End Date
 										</label>
 										<input
+											id={endDateId}
 											type="date"
 											value={
 												scheduleForm.endDate?.toISOString().split("T")[0] ?? ""

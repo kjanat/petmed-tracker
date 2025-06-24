@@ -2,7 +2,7 @@
 
 import { AlertCircle, Calendar, CheckCircle, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
@@ -42,6 +42,17 @@ const UNIT_OPTIONS = [
 ];
 
 export default function NewMedicationPage() {
+	// Generate unique IDs for form elements
+	const medicationNameId = useId();
+	const dosageId = useId();
+	const unitId = useId();
+	const instructionsId = useId();
+	const frequencyId = useId();
+	const timeOfDayId = useId();
+	const startDateId = useId();
+	const endDateId = useId();
+	const notesId = useId();
+
 	const params = useParams();
 	const router = useRouter();
 	const petId = params.id as string;
@@ -132,11 +143,15 @@ export default function NewMedicationPage() {
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Medication Name */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={medicationNameId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Medication Name *
 						</label>
 						<div className="relative">
 							<input
+								id={medicationNameId}
 								type="text"
 								value={formData.name}
 								onChange={(e) => {
@@ -149,38 +164,42 @@ export default function NewMedicationPage() {
 								required
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 							/>
-
-							{/* Suggestions Dropdown */}
-							{showSuggestions && filteredSuggestions.length > 0 && (
-								<div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
-									{filteredSuggestions.slice(0, 8).map((med, index) => (
-										<button
-											key={index}
-											type="button"
-											onClick={() => handleMedicationSelect(med)}
-											className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-gray-50"
-										>
-											<span className="font-medium">{med.name}</span>
-											<span className="rounded bg-gray-100 px-2 py-1 text-gray-500 text-xs">
-												{med.type}
-											</span>
-										</button>
-									))}
-								</div>
-							)}
 						</div>
-						<p className="mt-1 text-gray-500 text-xs">
-							Start typing to see common medications
-						</p>
+
+						{/* Suggestions */}
+						{showSuggestions && (
+							<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+								{COMMON_MEDICATIONS.filter((med) =>
+									med.name.toLowerCase().includes(formData.name.toLowerCase()),
+								).map((med, index) => (
+									<button
+										key={`${med.name}-${index}`}
+										type="button"
+										onClick={() => {
+											setFormData((prev) => ({ ...prev, name: med.name }));
+											setShowSuggestions(false);
+										}}
+										className="w-full border-gray-100 border-b px-4 py-2 text-left last:border-b-0 hover:bg-gray-50"
+									>
+										<div className="font-medium">{med.name}</div>
+										<div className="text-gray-600 text-sm">{med.type}</div>
+									</button>
+								))}
+							</div>
+						)}
 					</div>
 
 					{/* Dosage and Unit */}
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={dosageId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Dosage
 							</label>
 							<input
+								id={dosageId}
 								type="text"
 								value={formData.dosage}
 								onChange={(e) =>
@@ -192,10 +211,14 @@ export default function NewMedicationPage() {
 						</div>
 
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={unitId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Unit
 							</label>
 							<select
+								id={unitId}
 								value={formData.unit}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, unit: e.target.value }))
@@ -214,10 +237,14 @@ export default function NewMedicationPage() {
 
 					{/* Instructions */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={instructionsId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Instructions
 						</label>
 						<textarea
+							id={instructionsId}
 							value={formData.instructions}
 							onChange={(e) =>
 								setFormData((prev) => ({
@@ -231,57 +258,52 @@ export default function NewMedicationPage() {
 						/>
 					</div>
 
-					{/* Schedule Section */}
-					<div className="rounded-lg bg-blue-50 p-4">
-						<div className="mb-4 flex items-center justify-between">
-							<div className="flex items-center gap-2">
-								<Calendar className="text-blue-600" size={20} />
-								<h3 className="font-semibold text-blue-900">Create Schedule</h3>
+					{/* Schedule */}
+					<div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+						<h3 className="mb-3 flex items-center gap-2 font-medium text-blue-900 text-lg">
+							<Calendar size={20} />
+							Schedule
+						</h3>
+
+						<div className="space-y-4">
+							<div>
+								<label
+									htmlFor={frequencyId}
+									className="mb-2 block font-medium text-blue-900 text-sm"
+								>
+									Frequency
+								</label>
+								<select
+									id={frequencyId}
+									value={formData.frequency}
+									onChange={(e) =>
+										setFormData((prev) => ({
+											...prev,
+											frequency: e.target.value,
+										}))
+									}
+									className="w-full rounded-lg border border-blue-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+								>
+									<option value="">Select frequency</option>
+									{FREQUENCY_OPTIONS.map((freq) => (
+										<option key={freq} value={freq}>
+											{freq}
+										</option>
+									))}
+								</select>
 							</div>
-							<button
-								type="button"
-								onClick={() => setCreateSchedule(!createSchedule)}
-								className={`rounded-full px-3 py-1 font-medium text-sm transition-colors ${
-									createSchedule
-										? "bg-blue-600 text-white"
-										: "border border-blue-600 bg-white text-blue-600"
-								}`}
-							>
-								{createSchedule ? "Enabled" : "Disabled"}
-							</button>
-						</div>
 
-						{createSchedule && (
-							<div className="space-y-4">
-								<div>
-									<label className="mb-2 block font-medium text-blue-900 text-sm">
-										Frequency
-									</label>
-									<select
-										value={formData.frequency}
-										onChange={(e) =>
-											setFormData((prev) => ({
-												...prev,
-												frequency: e.target.value,
-											}))
-										}
-										className="w-full rounded-lg border border-blue-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-									>
-										<option value="">Select frequency</option>
-										{FREQUENCY_OPTIONS.map((freq) => (
-											<option key={freq} value={freq}>
-												{freq}
-											</option>
-										))}
-									</select>
-								</div>
-
+							{formData.frequency && (
 								<div className="grid grid-cols-2 gap-3">
 									<div>
-										<label className="mb-2 block font-medium text-blue-900 text-sm">
+										<label
+											htmlFor={timeOfDayId}
+											className="mb-2 block font-medium text-blue-900 text-sm"
+										>
 											Time of Day
 										</label>
 										<input
+											id={timeOfDayId}
 											type="time"
 											value={formData.timeOfDay}
 											onChange={(e) =>
@@ -295,10 +317,14 @@ export default function NewMedicationPage() {
 									</div>
 
 									<div>
-										<label className="mb-2 block font-medium text-blue-900 text-sm">
+										<label
+											htmlFor={startDateId}
+											className="mb-2 block font-medium text-blue-900 text-sm"
+										>
 											Start Date
 										</label>
 										<input
+											id={startDateId}
 											type="date"
 											value={formData.startDate}
 											onChange={(e) =>
@@ -311,12 +337,18 @@ export default function NewMedicationPage() {
 										/>
 									</div>
 								</div>
+							)}
 
+							{formData.frequency && (
 								<div>
-									<label className="mb-2 block font-medium text-blue-900 text-sm">
+									<label
+										htmlFor={endDateId}
+										className="mb-2 block font-medium text-blue-900 text-sm"
+									>
 										End Date (Optional)
 									</label>
 									<input
+										id={endDateId}
 										type="date"
 										value={formData.endDate}
 										onChange={(e) =>
@@ -325,43 +357,29 @@ export default function NewMedicationPage() {
 												endDate: e.target.value,
 											}))
 										}
-										min={formData.startDate}
 										className="w-full rounded-lg border border-blue-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
-									<p className="mt-1 text-blue-700 text-xs">
-										Leave empty for ongoing medication
-									</p>
 								</div>
-							</div>
-						)}
-
-						<div className="mt-4 rounded-lg bg-blue-100 p-3">
-							<div className="flex items-start gap-2">
-								<AlertCircle size={16} className="mt-0.5 text-blue-600" />
-								<div className="text-blue-800 text-sm">
-									<p className="mb-1 font-medium">Note about schedules</p>
-									<p>
-										You can {createSchedule ? "create a schedule now or " : ""}
-										add schedules later from the medication details page.
-										Schedules help track doses and send reminders.
-									</p>
-								</div>
-							</div>
+							)}
 						</div>
 					</div>
 
 					{/* Additional Notes */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={notesId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Additional Notes
 						</label>
 						<textarea
+							id={notesId}
 							value={formData.notes}
 							onChange={(e) =>
 								setFormData((prev) => ({ ...prev, notes: e.target.value }))
 							}
-							placeholder="Any additional notes about this medication..."
-							rows={2}
+							placeholder="Any additional notes or reminders..."
+							rows={3}
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>

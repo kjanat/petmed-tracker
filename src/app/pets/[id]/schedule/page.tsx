@@ -14,7 +14,7 @@ import {
 	X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { toast } from "react-hot-toast";
 import { api } from "@/trpc/react";
 
@@ -53,6 +53,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 	const [statusFilter, setStatusFilter] = useState<string>("all");
 
 	const router = useRouter();
+	const statusFilterId = useId();
 
 	// Resolve params
 	React.useEffect(() => {
@@ -66,11 +67,10 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 	);
 
 	// Get today's schedule (we'll expand this to get monthly schedule)
-	const { data: todaySchedule, isLoading: scheduleLoading } =
-		api.medication.getTodaySchedule.useQuery(
-			{ petId: resolvedParams?.id ?? "" },
-			{ enabled: !!resolvedParams?.id },
-		);
+	const { data: todaySchedule } = api.medication.getTodaySchedule.useQuery(
+		{ petId: resolvedParams?.id ?? "" },
+		{ enabled: !!resolvedParams?.id },
+	);
 
 	// Log dose mutation
 	const logDoseMutation = api.medication.logDose.useMutation({
@@ -218,13 +218,14 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 	const filteredSchedule = selectedDate
 		? (calendar
 				.find(
-					(day) =>
+					(day: CalendarDay) =>
 						day.date.getDate() === selectedDate.getDate() &&
 						day.date.getMonth() === selectedDate.getMonth() &&
 						day.date.getFullYear() === selectedDate.getFullYear(),
 				)
 				?.medications.filter(
-					(med) => statusFilter === "all" || med.status === statusFilter,
+					(med: MedicationScheduleItem) =>
+						statusFilter === "all" || med.status === statusFilter,
 				) ?? [])
 		: [];
 
@@ -262,6 +263,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 							The pet you're looking for doesn't exist.
 						</p>
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
 						>
@@ -280,6 +282,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 				<div className="mx-auto max-w-md px-4 py-4">
 					<div className="flex items-center gap-3">
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -292,6 +295,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 							<p className="text-gray-600 text-sm">{pet.name}</p>
 						</div>
 						<button
+							type="button"
 							onClick={() => setShowFilters(!showFilters)}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -307,10 +311,14 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 					<div className="rounded-lg border bg-white p-4">
 						<h3 className="mb-3 font-medium text-gray-900">Filters</h3>
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={statusFilterId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Status
 							</label>
 							<select
+								id={statusFilterId}
 								value={statusFilter}
 								onChange={(e) => setStatusFilter(e.target.value)}
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
@@ -330,6 +338,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 					{/* Calendar Header */}
 					<div className="flex items-center justify-between border-b p-4">
 						<button
+							type="button"
 							onClick={() => navigateMonth("prev")}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -339,6 +348,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 							{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
 						</h2>
 						<button
+							type="button"
 							onClick={() => navigateMonth("next")}
 							className="rounded-lg p-2 transition-colors hover:bg-gray-100"
 						>
@@ -350,21 +360,24 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 					<div className="p-4">
 						{/* Day Headers */}
 						<div className="mb-2 grid grid-cols-7 gap-1">
-							{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-								<div
-									key={day}
-									className="py-2 text-center font-medium text-gray-500 text-xs"
-								>
-									{day}
-								</div>
-							))}
+							{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+								(day: string) => (
+									<div
+										key={day}
+										className="py-2 text-center font-medium text-gray-500 text-xs"
+									>
+										{day}
+									</div>
+								),
+							)}
 						</div>
 
 						{/* Calendar Days */}
 						<div className="grid grid-cols-7 gap-1">
-							{calendar.map((day, index) => (
+							{calendar.map((day: CalendarDay) => (
 								<button
-									key={index}
+									type="button"
+									key={day.date.toISOString()}
 									onClick={() => setSelectedDate(day.date)}
 									className={`relative aspect-square rounded-lg text-sm transition-colors ${
 										day.isCurrentMonth
@@ -379,26 +392,33 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 										selectedDate.getFullYear() === day.date.getFullYear()
 											? "bg-blue-50 ring-2 ring-blue-500"
 											: ""
-									} `}
+									}
+								`}
 								>
 									<div className="flex h-full flex-col items-center justify-center">
 										<span>{day.date.getDate()}</span>
 										{day.medications.length > 0 && (
 											<div className="mt-1 flex gap-px">
-												{day.medications.slice(0, 3).map((med, medIndex) => (
-													<div
-														key={medIndex}
-														className={`h-1 w-1 rounded-full ${
-															med.status === "given"
-																? "bg-green-500"
-																: med.status === "missed"
-																	? "bg-red-500"
-																	: med.status === "skipped"
-																		? "bg-yellow-500"
-																		: "bg-blue-500"
-														}`}
-													/>
-												))}
+												{day.medications
+													.slice(0, 3)
+													.map((med: MedicationScheduleItem) => (
+														<div
+															key={
+																med.medicationId ||
+																med.logId ||
+																med.medicationName
+															}
+															className={`h-1 w-1 rounded-full ${
+																med.status === "given"
+																	? "bg-green-500"
+																	: med.status === "missed"
+																		? "bg-red-500"
+																		: med.status === "skipped"
+																			? "bg-yellow-500"
+																			: "bg-blue-500"
+															}`}
+														/>
+													))}
 												{day.medications.length > 3 && (
 													<div className="h-1 w-1 rounded-full bg-gray-400" />
 												)}
@@ -439,8 +459,15 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 								</div>
 							) : (
 								<div className="space-y-3">
-									{filteredSchedule.map((medication, index) => (
-										<div key={index} className="rounded-lg border p-3">
+									{filteredSchedule.map((medication) => (
+										<div
+											key={
+												medication.medicationId ||
+												medication.logId ||
+												medication.medicationName
+											}
+											className="rounded-lg border p-3"
+										>
 											<div className="flex items-start justify-between">
 												<div className="flex-1">
 													<div className="mb-1 flex items-center gap-2">
@@ -449,13 +476,12 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 															{medication.medicationName}
 														</span>
 														<span
-															className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs ${getStatusColor(medication.status)} `}
+															className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs ${getStatusColor(medication.status)}`}
 														>
 															{getStatusIcon(medication.status)}
 															{medication.status}
 														</span>
 													</div>
-
 													<div className="space-y-1 text-gray-600 text-sm">
 														<div className="flex items-center gap-1">
 															<Clock className="h-3 w-3" />
@@ -470,14 +496,12 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 																)}
 															</span>
 														</div>
-
 														{medication.dosage && (
 															<div>
 																<strong>Dosage:</strong> {medication.dosage}{" "}
 																{medication.unit}
 															</div>
 														)}
-
 														{medication.givenBy && (
 															<div>
 																<strong>Given by:</strong>{" "}
@@ -485,7 +509,6 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 																	medication.givenBy.email}
 															</div>
 														)}
-
 														{medication.actualTime && (
 															<div>
 																<strong>Actual time:</strong>{" "}
@@ -498,7 +521,6 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 																)}
 															</div>
 														)}
-
 														{medication.notes && (
 															<div>
 																<strong>Notes:</strong> {medication.notes}
@@ -507,11 +529,11 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 													</div>
 												</div>
 											</div>
-
 											{/* Quick Actions */}
 											{medication.status === "pending" && (
 												<div className="mt-3 flex gap-2 border-t pt-3">
 													<button
+														type="button"
 														onClick={() =>
 															handleLogDose(medication.medicationId, "given")
 														}
@@ -521,6 +543,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 														Mark Given
 													</button>
 													<button
+														type="button"
 														onClick={() =>
 															handleLogDose(medication.medicationId, "missed")
 														}
@@ -530,6 +553,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 														Mark Missed
 													</button>
 													<button
+														type="button"
 														onClick={() =>
 															handleLogDose(medication.medicationId, "skipped")
 														}
@@ -575,6 +599,7 @@ export default function PetSchedulePage({ params }: SchedulePageProps) {
 
 				{/* Export Button */}
 				<button
+					type="button"
 					onClick={() => toast.success("Export functionality coming soon!")}
 					className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-gray-700 transition-colors hover:bg-gray-200"
 				>

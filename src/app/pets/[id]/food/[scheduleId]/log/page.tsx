@@ -12,7 +12,7 @@ import {
 	XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "react-hot-toast";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
@@ -32,6 +32,9 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
 		notes: "",
 	});
 	const router = useRouter();
+	const timeInputId = useId();
+	const notesInputId = useId();
+	const feedingStatusGroupId = useId();
 
 	// Resolve params
 	useEffect(() => {
@@ -224,10 +227,13 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
 				{/* Form */}
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Status Selection */}
-					<div>
-						<label className="mb-3 block font-medium text-gray-700 text-sm">
+					<fieldset className="mb-3" aria-labelledby={feedingStatusGroupId}>
+						<legend
+							id={feedingStatusGroupId}
+							className="mb-3 block font-medium text-gray-700 text-sm"
+						>
 							Feeding Status *
-						</label>
+						</legend>
 						<div className="space-y-3">
 							{(["fed", "missed", "skipped"] as const).map((status) => {
 								const statusInfo = getStatusInfo(status);
@@ -276,11 +282,14 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
 								);
 							})}
 						</div>
-					</div>
+					</fieldset>
 
 					{/* Actual Time */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={timeInputId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Time *
 						</label>
 						<div className="relative">
@@ -289,6 +298,7 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
 								size={16}
 							/>
 							<input
+								id={timeInputId}
 								type="time"
 								value={formData.actualTime}
 								onChange={(e) =>
@@ -305,7 +315,10 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
 
 					{/* Notes */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={notesInputId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Notes (Optional)
 						</label>
 						<div className="relative">
@@ -314,13 +327,13 @@ export default function LogFeedingPage({ params }: LogFeedingPageProps) {
 								size={16}
 							/>
 							<textarea
+								id={notesInputId}
 								value={formData.notes}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, notes: e.target.value }))
 								}
-								placeholder="Any additional notes about this feeding..."
-								rows={3}
-								className="w-full rounded-lg border border-gray-300 py-2 pr-3 pl-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+								placeholder="Add any notes (optional)"
+								className="w-full rounded-lg border border-gray-300 px-3 py-2 pl-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 							/>
 						</div>
 					</div>

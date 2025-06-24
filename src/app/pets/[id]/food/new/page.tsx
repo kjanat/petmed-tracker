@@ -10,7 +10,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "react-hot-toast";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
@@ -43,6 +43,10 @@ const UNIT_OPTIONS = [
 	"tsp",
 	"ml",
 ];
+
+function generateId() {
+	return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
 
 export default function NewFoodSchedulePage({
 	params,
@@ -80,27 +84,28 @@ export default function NewFoodSchedulePage({
 		},
 	});
 
-	const addTimeSlot = () => {
-		setFormData((prev) => ({
-			...prev,
-			times: [...prev.times, ""],
-		}));
-	};
+	const foodTypeId = useId();
+	const amountId = useId();
+	const unitId = useId();
+	const instructionsId = useId();
+	const feedingTimesLabelId = useId();
+	// Feeding times: store array of { id, value }
+	const [feedingTimes, setFeedingTimes] = useState([
+		{ id: generateId(), value: "" },
+	]);
 
+	const addTimeSlot = () => {
+		setFeedingTimes((prev) => [...prev, { id: generateId(), value: "" }]);
+	};
 	const removeTimeSlot = (index: number) => {
-		if (formData.times.length > 1) {
-			setFormData((prev) => ({
-				...prev,
-				times: prev.times.filter((_, i) => i !== index),
-			}));
+		if (feedingTimes.length > 1) {
+			setFeedingTimes((prev) => prev.filter((_, i) => i !== index));
 		}
 	};
-
 	const updateTimeSlot = (index: number, value: string) => {
-		setFormData((prev) => ({
-			...prev,
-			times: prev.times.map((time, i) => (i === index ? value : time)),
-		}));
+		setFeedingTimes((prev) =>
+			prev.map((slot, i) => (i === index ? { ...slot, value } : slot)),
+		);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -114,7 +119,9 @@ export default function NewFoodSchedulePage({
 			return;
 		}
 
-		const validTimes = formData.times.filter((time) => time.trim() !== "");
+		const validTimes = feedingTimes
+			.map((slot) => slot.value)
+			.filter((time) => time.trim() !== "");
 		if (validTimes.length === 0) {
 			toast.error("Please add at least one feeding time");
 			return;
@@ -183,7 +190,10 @@ export default function NewFoodSchedulePage({
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Food Type */}
 					<div className="relative">
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={foodTypeId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Food Type *
 						</label>
 						<div className="relative">
@@ -192,6 +202,7 @@ export default function NewFoodSchedulePage({
 								size={16}
 							/>
 							<input
+								id={foodTypeId}
 								type="text"
 								value={formData.foodType}
 								onChange={(e) => {
@@ -237,10 +248,14 @@ export default function NewFoodSchedulePage({
 					{/* Amount & Unit */}
 					<div className="grid grid-cols-2 gap-4">
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={amountId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Amount
 							</label>
 							<input
+								id={amountId}
 								type="text"
 								value={formData.amount}
 								onChange={(e) =>
@@ -251,10 +266,14 @@ export default function NewFoodSchedulePage({
 							/>
 						</div>
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={unitId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Unit
 							</label>
 							<select
+								id={unitId}
 								value={formData.unit}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, unit: e.target.value }))
@@ -274,7 +293,10 @@ export default function NewFoodSchedulePage({
 					{/* Feeding Times */}
 					<div>
 						<div className="mb-2 flex items-center justify-between">
-							<label className="block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={feedingTimes?.[0]?.id}
+								className="block font-medium text-gray-700 text-sm"
+							>
 								Feeding Times *
 							</label>
 							<button
@@ -286,24 +308,25 @@ export default function NewFoodSchedulePage({
 								Add Time
 							</button>
 						</div>
-
 						<div className="space-y-3">
-							{formData.times.map((time, index) => (
-								<div key={index} className="flex items-center gap-2">
+							{feedingTimes.map((slot, index) => (
+								<div key={slot.id} className="flex items-center gap-2">
 									<div className="relative flex-1">
 										<Clock
 											className="-translate-y-1/2 absolute top-1/2 left-3 transform text-gray-400"
 											size={16}
 										/>
 										<input
+											id={slot.id}
 											type="time"
-											value={time}
+											value={slot.value}
 											onChange={(e) => updateTimeSlot(index, e.target.value)}
+											aria-labelledby={feedingTimesLabelId}
 											className="w-full rounded-lg border border-gray-300 py-2 pr-3 pl-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 											required
 										/>
 									</div>
-									{formData.times.length > 1 && (
+									{feedingTimes.length > 1 && (
 										<button
 											type="button"
 											onClick={() => removeTimeSlot(index)}
@@ -319,10 +342,14 @@ export default function NewFoodSchedulePage({
 
 					{/* Instructions */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={instructionsId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Instructions / Notes
 						</label>
 						<textarea
+							id={instructionsId}
 							value={formData.instructions}
 							onChange={(e) =>
 								setFormData((prev) => ({

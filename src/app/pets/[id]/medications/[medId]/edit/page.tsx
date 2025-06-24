@@ -9,7 +9,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
@@ -24,6 +24,13 @@ const UNIT_OPTIONS = [
 ];
 
 export default function EditMedicationPage() {
+	// Generate unique IDs for form elements
+	const medicationNameId = useId();
+	const dosageId = useId();
+	const unitId = useId();
+	const instructionsId = useId();
+	const statusGroupId = useId();
+
 	const params = useParams();
 	const router = useRouter();
 	const petId = params.id as string;
@@ -163,10 +170,14 @@ export default function EditMedicationPage() {
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Medication Name */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={medicationNameId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Medication Name *
 						</label>
 						<input
+							id={medicationNameId}
 							type="text"
 							value={formData.name}
 							onChange={(e) =>
@@ -181,10 +192,14 @@ export default function EditMedicationPage() {
 					{/* Dosage and Unit */}
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={dosageId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Dosage
 							</label>
 							<input
+								id={dosageId}
 								type="text"
 								value={formData.dosage}
 								onChange={(e) =>
@@ -196,10 +211,14 @@ export default function EditMedicationPage() {
 						</div>
 
 						<div>
-							<label className="mb-2 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor={unitId}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
 								Unit
 							</label>
 							<select
+								id={unitId}
 								value={formData.unit}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, unit: e.target.value }))
@@ -218,10 +237,14 @@ export default function EditMedicationPage() {
 
 					{/* Instructions */}
 					<div>
-						<label className="mb-2 block font-medium text-gray-700 text-sm">
+						<label
+							htmlFor={instructionsId}
+							className="mb-2 block font-medium text-gray-700 text-sm"
+						>
 							Instructions
 						</label>
 						<textarea
+							id={instructionsId}
 							value={formData.instructions}
 							onChange={(e) =>
 								setFormData((prev) => ({
@@ -236,10 +259,10 @@ export default function EditMedicationPage() {
 					</div>
 
 					{/* Status Toggle */}
-					<div>
-						<label className="mb-3 block font-medium text-gray-700 text-sm">
+					<fieldset>
+						<legend className="mb-3 block font-medium text-gray-700 text-sm">
 							Status
-						</label>
+						</legend>
 						<div className="grid grid-cols-2 gap-3">
 							<button
 								type="button"
@@ -291,7 +314,7 @@ export default function EditMedicationPage() {
 								</div>
 							</button>
 						</div>
-					</div>
+					</fieldset>
 
 					{/* Recent Activity Summary */}
 					{medication.logs && medication.logs.length > 0 && (

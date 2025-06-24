@@ -80,6 +80,7 @@ export default function PetMedicationsPage() {
 				<div className="mb-6 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<button
+							type="button"
 							onClick={() => router.back()}
 							className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
 						>
@@ -93,32 +94,33 @@ export default function PetMedicationsPage() {
 
 					<Link
 						href={`/pets/${petId}/medications/new`}
-						className="rounded-lg bg-blue-600 p-2 text-white transition-colors hover:bg-blue-700"
+						className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
 					>
-						<Plus size={20} />
+						Add Medication
 					</Link>
 				</div>
 
 				{/* Filter Tabs */}
 				<div className="mb-6 flex gap-2">
 					<button
+						type="button"
 						onClick={() => setShowInactive(false)}
-						className={`rounded-lg px-4 py-2 font-medium text-sm transition-colors ${
+						className={`rounded-lg px-4 py-2 font-medium transition-colors ${
 							!showInactive
 								? "bg-blue-600 text-white"
-								: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+								: "bg-gray-100 text-gray-600 hover:bg-gray-200"
 						}`}
 					>
 						Active ({activeMedications.length})
 					</button>
-
 					{inactiveMedications.length > 0 && (
 						<button
+							type="button"
 							onClick={() => setShowInactive(true)}
-							className={`rounded-lg px-4 py-2 font-medium text-sm transition-colors ${
+							className={`rounded-lg px-4 py-2 font-medium transition-colors ${
 								showInactive
 									? "bg-blue-600 text-white"
-									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									: "bg-gray-100 text-gray-600 hover:bg-gray-200"
 							}`}
 						>
 							All ({medications?.length || 0})
@@ -186,6 +188,7 @@ export default function PetMedicationsPage() {
 								</div>
 
 								<button
+									type="button"
 									onClick={() =>
 										setSelectedMed(
 											selectedMed === medication.id ? null : medication.id,
@@ -355,6 +358,7 @@ export default function PetMedicationsPage() {
 										</Link>
 
 										<button
+											type="button"
 											onClick={() => {
 												updateMedicationMutation.mutate({
 													id: medication.id,
@@ -363,7 +367,7 @@ export default function PetMedicationsPage() {
 											}}
 											className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
 												medication.isActive
-													? "bg-amber-50 text-amber-700 hover:bg-amber-100"
+													? "bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
 													: "bg-green-50 text-green-700 hover:bg-green-100"
 											}`}
 										>
@@ -372,17 +376,15 @@ export default function PetMedicationsPage() {
 										</button>
 
 										<button
+											type="button"
 											onClick={() => {
 												if (
 													confirm(
-														`Are you sure you want to delete ${medication.name}? This action cannot be undone.`,
+														"Are you sure you want to delete this medication? This action cannot be undone.",
 													)
 												) {
-													// Delete mutation would go here
-													// For now, just deactivate
-													updateMedicationMutation.mutate({
+													deleteMedicationMutation.mutate({
 														id: medication.id,
-														isActive: false,
 													});
 												}
 											}}

@@ -33,6 +33,15 @@ export default function PetDetailsPage() {
 	const router = useRouter();
 	const petId = params.id as string;
 
+	const qrCodeId = useId();
+	const emailId = useId();
+	const nameId = useId();
+	const speciesId = useId();
+	const breedId = useId();
+	const birthDateId = useId();
+	const weightId = useId();
+	const notesId = useId();
+
 	const [showQr, setShowQr] = useState(false);
 	const [editingPet, setEditingPet] = useState(false);
 	const [showAddCaregiver, setShowAddCaregiver] = useState(false);
@@ -135,8 +144,6 @@ export default function PetDetailsPage() {
 					new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
 			)
 			.slice(0, 10) || [];
-
-	const qrCodeId = useId();
 
 	return (
 		<MobileLayout activeTab="pets">
@@ -651,6 +658,7 @@ export default function PetDetailsPage() {
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									deletePetMutation.mutate({ id: pet.id });
 								}}
@@ -687,7 +695,7 @@ export default function PetDetailsPage() {
 								Email Address
 							</label>
 							<input
-								id="email"
+								id={emailId}
 								type="email"
 								value={caregiverEmail}
 								onChange={(e) => setCaregiverEmail(e.target.value)}
@@ -708,18 +716,19 @@ export default function PetDetailsPage() {
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={() => {
-									if (caregiverEmail.trim()) {
-										addCaregiverMutation.mutate({
-											petId: pet.id,
-											email: caregiverEmail.trim(),
-											role: "caregiver",
-										});
+									if (!caregiverEmail.trim()) {
+										toast.error("Please enter an email address");
+										return;
 									}
+
+									addCaregiverMutation.mutate({
+										petId: pet.id,
+										email: caregiverEmail.trim(),
+									});
 								}}
-								disabled={
-									!caregiverEmail.trim() || addCaregiverMutation.isPending
-								}
+								disabled={addCaregiverMutation.isPending}
 								className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
 							>
 								{addCaregiverMutation.isPending ? "Adding..." : "Add"}
@@ -773,11 +782,15 @@ export default function PetDetailsPage() {
 									Name *
 								</label>
 								<input
-									id="name"
-									name="name"
+									id={nameId}
 									type="text"
-									defaultValue={pet.name}
-									required
+									value={editFormData.name}
+									onChange={(e) =>
+										setEditFormData((prev) => ({
+											...prev,
+											name: e.target.value,
+										}))
+									}
 									className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 								/>
 							</div>
@@ -791,11 +804,15 @@ export default function PetDetailsPage() {
 										Species
 									</label>
 									<input
-										id="species"
-										name="species"
+										id={speciesId}
 										type="text"
-										defaultValue={pet.species || ""}
-										placeholder="Dog, Cat, etc."
+										value={editFormData.species}
+										onChange={(e) =>
+											setEditFormData((prev) => ({
+												...prev,
+												species: e.target.value,
+											}))
+										}
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
 								</div>
@@ -808,11 +825,15 @@ export default function PetDetailsPage() {
 										Breed
 									</label>
 									<input
-										id="breed"
-										name="breed"
+										id={breedId}
 										type="text"
-										defaultValue={pet.breed || ""}
-										placeholder="Golden Retriever"
+										value={editFormData.breed}
+										onChange={(e) =>
+											setEditFormData((prev) => ({
+												...prev,
+												breed: e.target.value,
+											}))
+										}
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
 								</div>
@@ -827,13 +848,20 @@ export default function PetDetailsPage() {
 										Birth Date
 									</label>
 									<input
-										id="birthDate"
-										name="birthDate"
+										id={birthDateId}
 										type="date"
-										defaultValue={
-											pet.birthDate
-												? new Date(pet.birthDate).toISOString().split("T")[0]
+										value={
+											editFormData.birthDate
+												? editFormData.birthDate.toISOString().split("T")[0]
 												: ""
+										}
+										onChange={(e) =>
+											setEditFormData((prev) => ({
+												...prev,
+												birthDate: e.target.value
+													? new Date(e.target.value)
+													: null,
+											}))
 										}
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
@@ -847,12 +875,17 @@ export default function PetDetailsPage() {
 										Weight (lbs)
 									</label>
 									<input
-										id="weight"
-										name="weight"
+										id={weightId}
 										type="number"
-										step="0.1"
-										min="0"
-										defaultValue={pet.weight || ""}
+										value={editFormData.weight?.toString() || ""}
+										onChange={(e) =>
+											setEditFormData((prev) => ({
+												...prev,
+												weight: e.target.value
+													? Number.parseFloat(e.target.value)
+													: null,
+											}))
+										}
 										className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 									/>
 								</div>
@@ -866,10 +899,15 @@ export default function PetDetailsPage() {
 									Notes
 								</label>
 								<textarea
-									id="notes"
-									name="notes"
+									id={notesId}
+									value={editFormData.notes || ""}
+									onChange={(e) =>
+										setEditFormData((prev) => ({
+											...prev,
+											notes: e.target.value,
+										}))
+									}
 									rows={3}
-									defaultValue={pet.notes || ""}
 									placeholder="Any special notes about your pet..."
 									className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 								/>
@@ -880,7 +918,6 @@ export default function PetDetailsPage() {
 									type="button"
 									onClick={() => setEditingPet(false)}
 									className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-200"
-									type="button"
 								>
 									Cancel
 								</button>
