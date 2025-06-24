@@ -37,7 +37,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 		};
 	} catch (error) {
 		console.error("Error creating TRPC context:", error);
-		
+
 		// Return context without session if auth fails
 		return {
 			db,

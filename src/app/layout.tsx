@@ -13,7 +13,14 @@ export const metadata: Metadata = {
 	description: "Track your pet's medication schedule and never miss a dose",
 	icons: [{ rel: "icon", url: "/favicon.ico" }],
 	manifest: "/manifest.json",
-	keywords: ["pet", "medication", "tracker", "veterinary", "schedule", "reminder"],
+	keywords: [
+		"pet",
+		"medication",
+		"tracker",
+		"veterinary",
+		"schedule",
+		"reminder",
+	],
 	authors: [{ name: "Pet Medication Tracker Team" }],
 	creator: "Pet Medication Tracker",
 	publisher: "Pet Medication Tracker",
@@ -63,8 +70,8 @@ export default function RootLayout({
 							toastOptions={{
 								duration: 4000,
 								style: {
-									background: '#363636',
-									color: '#fff',
+									background: "#363636",
+									color: "#fff",
 								},
 							}}
 						/>

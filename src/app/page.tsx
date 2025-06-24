@@ -1,12 +1,42 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { AlertCircle, CheckCircle, Clock, Plus } from "lucide-react";
 import Link from "next/link";
-import { Plus, AlertCircle, CheckCircle, Clock } from "lucide-react";
-
+import { signIn, useSession } from "next-auth/react";
+import MobileLayout from "@/components/MobileLayout";
 import { api } from "@/trpc/react";
 
-import MobileLayout from "@/components/MobileLayout";
+// Types
+type Pet = {
+	id: string;
+	name: string;
+	species: string | null;
+	breed: string | null;
+	birthDate: Date | null;
+	weight: number | null;
+	notes: string | null;
+	qrCodeId: string;
+	createdAt: Date;
+	updatedAt: Date;
+};
+
+type TodayScheduleItem = {
+	medicationId: string;
+	medicationName: string;
+	dosage: string | null;
+	unit: string | null;
+	instructions: string | null;
+	scheduledTime: Date;
+	status: string;
+	givenBy?: {
+		id: string;
+		name: string | null;
+		email: string | null;
+	} | null;
+	actualTime?: Date | null;
+	notes?: string | null;
+	logId?: string | null;
+};
 
 export default function HomePage() {
 	const { data: session, status } = useSession();
@@ -17,8 +47,8 @@ export default function HomePage() {
 	if (status === "loading") {
 		return (
 			<MobileLayout>
-				<div className="flex items-center justify-center min-h-[400px]">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+				<div className="flex min-h-[400px] items-center justify-center">
+					<div className="h-8 w-8 animate-spin rounded-full border-blue-600 border-b-2" />
 				</div>
 			</MobileLayout>
 		);
@@ -29,15 +59,17 @@ export default function HomePage() {
 			<MobileLayout>
 				<div className="px-4 py-8">
 					<div className="text-center">
-						<h2 className="text-2xl font-bold text-gray-900 mb-4">
+						<h2 className="mb-4 font-bold text-2xl text-gray-900">
 							Welcome to PetMed Tracker
 						</h2>
-						<p className="text-gray-600 mb-8">
-							Keep track of your pet's medication schedule and never miss a dose.
+						<p className="mb-8 text-gray-600">
+							Keep track of your pet's medication schedule and never miss a
+							dose.
 						</p>
 						<button
+							type="button"
 							onClick={() => signIn("discord")}
-							className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+							className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 						>
 							Sign In with Discord
 						</button>
@@ -52,15 +84,15 @@ export default function HomePage() {
 			<MobileLayout activeTab="home">
 				<div className="px-4 py-8">
 					<div className="text-center">
-						<h2 className="text-xl font-semibold text-gray-900 mb-4">
+						<h2 className="mb-4 font-semibold text-gray-900 text-xl">
 							No pets yet
 						</h2>
-						<p className="text-gray-600 mb-6">
+						<p className="mb-6 text-gray-600">
 							Add your first pet to start tracking their medication schedule.
 						</p>
 						<Link
 							href="/pets/new"
-							className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+							className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 						>
 							<Plus size={20} />
 							Add Your First Pet
@@ -76,7 +108,7 @@ export default function HomePage() {
 			<div className="px-4 py-6">
 				{/* Welcome Section */}
 				<div className="mb-6">
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
+					<h2 className="mb-2 font-semibold text-gray-900 text-xl">
 						Welcome back, {session.user.name}!
 					</h2>
 					<p className="text-gray-600">Here's today's medication schedule</p>
@@ -93,18 +125,18 @@ export default function HomePage() {
 				<div className="mt-8 grid grid-cols-2 gap-4">
 					<Link
 						href="/pets/new"
-						className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md transition-shadow"
+						className="rounded-lg border border-gray-200 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
 					>
 						<Plus className="mx-auto mb-2 text-blue-600" size={24} />
-						<span className="text-sm font-medium text-gray-900">Add Pet</span>
+						<span className="font-medium text-gray-900 text-sm">Add Pet</span>
 					</Link>
 
 					<Link
 						href="/qr-scanner"
-						className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md transition-shadow"
+						className="rounded-lg border border-gray-200 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
 					>
 						<Clock className="mx-auto mb-2 text-green-600" size={24} />
-						<span className="text-sm font-medium text-gray-900">Scan QR</span>
+						<span className="font-medium text-gray-900 text-sm">Scan QR</span>
 					</Link>
 				</div>
 			</div>
@@ -112,10 +144,10 @@ export default function HomePage() {
 	);
 }
 
-function PetTodaySchedule({ pet }: { pet: any }) {
+function PetTodaySchedule({ pet }: { pet: Pet }) {
 	const { data: todaySchedule } = api.medication.getTodaySchedule.useQuery(
 		{ petId: pet.id },
-		{ refetchInterval: 30000 } // Refresh every 30 seconds
+		{ refetchInterval: 30000 }, // Refresh every 30 seconds
 	);
 
 	const logMedicationMutation = api.medication.logMedication.useMutation({
@@ -125,7 +157,7 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 		},
 	});
 
-	const handleGiveMedication = (item: any) => {
+	const handleGiveMedication = (item: TodayScheduleItem) => {
 		logMedicationMutation.mutate({
 			medicationId: item.medicationId,
 			scheduledTime: new Date(item.scheduledTime),
@@ -135,8 +167,8 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 
 	if (!todaySchedule || todaySchedule.length === 0) {
 		return (
-			<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-				<h3 className="font-semibold text-gray-900 mb-2">{pet.name}</h3>
+			<div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+				<h3 className="mb-2 font-semibold text-gray-900">{pet.name}</h3>
 				<p className="text-gray-600 text-sm">
 					No medications scheduled for today
 				</p>
@@ -145,17 +177,17 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 	}
 
 	return (
-		<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-			<h3 className="font-semibold text-gray-900 mb-4">{pet.name}</h3>
+		<div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+			<h3 className="mb-4 font-semibold text-gray-900">{pet.name}</h3>
 
 			<div className="space-y-3">
-				{todaySchedule.map((item: any, index: number) => (
+				{todaySchedule.map((item: TodayScheduleItem) => (
 					<div
-						key={index}
-						className="flex items-center justify-between p-3 rounded-lg border border-gray-100"
+						key={`${item.medicationId}-${item.scheduledTime.toISOString()}`}
+						className="flex items-center justify-between rounded-lg border border-gray-100 p-3"
 					>
 						<div className="flex-1">
-							<div className="flex items-center gap-2 mb-1">
+							<div className="mb-1 flex items-center gap-2">
 								{item.status === "given" ? (
 									<CheckCircle size={16} className="text-green-600" />
 								) : item.status === "missed" ? (
@@ -168,7 +200,7 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 								</span>
 							</div>
 
-							<div className="text-sm text-gray-600">
+							<div className="text-gray-600 text-sm">
 								<div>
 									{new Date(item.scheduledTime).toLocaleTimeString("en-US", {
 										hour: "numeric",
@@ -176,13 +208,11 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 										hour12: true,
 									})}
 									{item.dosage &&
-										` • ${item.dosage}${
-											item.unit ? ` ${item.unit}` : ""
-										}`}
+										` • ${item.dosage}${item.unit ? ` ${item.unit}` : ""}`}
 								</div>
 
 								{item.status === "given" && item.givenBy && item.actualTime && (
-									<div className="text-green-600 text-xs mt-1">
+									<div className="mt-1 text-green-600 text-xs">
 										Given by {item.givenBy.name} at{" "}
 										{new Date(item.actualTime).toLocaleTimeString("en-US", {
 											hour: "numeric",
@@ -196,9 +226,10 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 
 						{item.status === "pending" && (
 							<button
+								type="button"
 								onClick={() => handleGiveMedication(item)}
 								disabled={logMedicationMutation.isPending}
-								className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+								className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
 							>
 								{logMedicationMutation.isPending ? "..." : "Give"}
 							</button>
@@ -209,7 +240,7 @@ function PetTodaySchedule({ pet }: { pet: any }) {
 
 			<Link
 				href={`/pets/${pet.id}`}
-				className="inline-block mt-4 text-blue-600 text-sm font-medium hover:text-blue-700"
+				className="mt-4 inline-block font-medium text-blue-600 text-sm hover:text-blue-700"
 			>
 				View {pet.name}'s full schedule →
 			</Link>

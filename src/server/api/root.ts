@@ -1,8 +1,8 @@
-import { postRouter } from "@/server/api/routers/post";
-import { petRouter } from "@/server/api/routers/pet";
-import { medicationRouter } from "@/server/api/routers/medication";
-import { qrCodeRouter } from "@/server/api/routers/qrcode";
 import { foodRouter } from "@/server/api/routers/food";
+import { medicationRouter } from "@/server/api/routers/medication";
+import { petRouter } from "@/server/api/routers/pet";
+import { postRouter } from "@/server/api/routers/post";
+import { qrCodeRouter } from "@/server/api/routers/qrcode";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
