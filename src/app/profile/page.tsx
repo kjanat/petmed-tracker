@@ -14,9 +14,15 @@ import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import MobileLayout from "@/components/MobileLayout";
 
+// Import package.json to get the real version
+import packageJson from "../../../package.json";
+
 export default function ProfilePage() {
 	const { data: session } = useSession();
 	const [isSigningOut, setIsSigningOut] = useState(false);
+
+	// Only show technical details in development/test environments
+	const isDevelopment = process.env.NODE_ENV === "development";
 
 	const handleSignOut = async () => {
 		setIsSigningOut(true);
@@ -116,29 +122,35 @@ export default function ProfilePage() {
 						</div>
 					</div>
 
-					{/* App Info */}
-					<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-						<div className="border-gray-100 border-b p-4">
-							<div className="flex items-center gap-3">
-								<Info className="text-gray-600" size={20} />
-								<h3 className="font-semibold text-gray-900">App Information</h3>
+					{/* App Info - Only show in development */}
+					{isDevelopment && (
+						<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+							<div className="border-gray-100 border-b p-4">
+								<div className="flex items-center gap-3">
+									<Info className="text-gray-600" size={20} />
+									<h3 className="font-semibold text-gray-900">
+										App Information
+									</h3>
+								</div>
+							</div>
+							<div className="space-y-3 p-4">
+								<div className="flex items-center justify-between">
+									<span className="text-gray-700">Version</span>
+									<span className="text-gray-600 text-sm">
+										{packageJson.version}
+									</span>
+								</div>
+								<div className="flex items-center justify-between">
+									<span className="text-gray-700">Build</span>
+									<span className="text-gray-600 text-sm">T3 Stack</span>
+								</div>
+								<div className="flex items-center justify-between">
+									<span className="text-gray-700">Database</span>
+									<span className="text-gray-600 text-sm">SQLite + Prisma</span>
+								</div>
 							</div>
 						</div>
-						<div className="space-y-3 p-4">
-							<div className="flex items-center justify-between">
-								<span className="text-gray-700">Version</span>
-								<span className="text-gray-600 text-sm">1.0.0 Beta</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-gray-700">Build</span>
-								<span className="text-gray-600 text-sm">T3 Stack</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-gray-700">Database</span>
-								<span className="text-gray-600 text-sm">SQLite + Prisma</span>
-							</div>
-						</div>
-					</div>
+					)}
 
 					{/* Quick Stats */}
 					<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
