@@ -1,6 +1,13 @@
 # PetMed Tracker
 
-A modern, mobile-first pet medication and care tracker built with Next.js, TRPC, Prisma, NextAuth, Tailwind CSS, and Bun.
+**PetMed Tracker** is your all-in-one, mobile-first solution for managing every aspect of your pets' health and daily care. Designed for modern pet owners, families, and caregivers, it empowers you to:
+
+- **Never miss a medication or feeding:** Schedule, track, and log every dose, meal, and supplement for each pet.
+- **Share care with confidence:** Instantly share up-to-date care instructions, medication lists, and emergency info with family, sitters, or vets using secure QR codes.
+- **Access anywhere, anytime:** Works offline as a PWA, so you’re always in control—even without internet.
+- **Stay organized and proactive:** Get reminders, see care history, and keep all your pets’ vital info in one place.
+
+Built with privacy, reliability, and ease-of-use at its core, PetMed Tracker is the ultimate digital companion for responsible pet care—whether you have one pet or a whole menagerie.
 
 ## Features
 
