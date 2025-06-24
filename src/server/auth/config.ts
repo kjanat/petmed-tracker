@@ -1,6 +1,6 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import type { AuthOptions, DefaultSession, Session, User } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import NextAuth, { type DefaultSession } from "next-auth";
+import Discord from "next-auth/providers/discord";
 
 import { db } from "@/server/db";
 
@@ -11,7 +11,7 @@ import { db } from "@/server/db";
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 declare module "next-auth" {
-	interface Session extends DefaultSession {
+	interface Session {
 		user: {
 			id: string;
 			// ...other properties
@@ -25,36 +25,16 @@ declare module "next-auth" {
 	// }
 }
 
-if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
-	throw new Error(
-		"Missing Discord environment variables: DISCORD_CLIENT_ID or DISCORD_CLIENT_SECRET",
-	);
-}
-
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
-export const authConfig: AuthOptions = {
-	providers: [
-		DiscordProvider({
-			clientId: process.env.DISCORD_CLIENT_ID,
-			clientSecret: process.env.DISCORD_CLIENT_SECRET,
-		}),
-		/**
-		 * ...add more providers here.
-		 *
-		 * Most other providers require a bit more work than the Discord provider. For example, the
-		 * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-		 * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-		 *
-		 * @see https://next-auth.js.org/providers/github
-		 */
-	],
+export const { handlers, signIn, signOut, auth } = NextAuth({
 	adapter: PrismaAdapter(db),
+	providers: [
+		Discord({
+			clientId: process.env.AUTH_DISCORD_ID,
+			clientSecret: process.env.AUTH_DISCORD_SECRET,
+		}),
+	],
 	callbacks: {
-		session: ({ session, user }: { session: Session; user: User }) => ({
+		session: ({ session, user }) => ({
 			...session,
 			user: {
 				...session.user,
@@ -62,4 +42,4 @@ export const authConfig: AuthOptions = {
 			},
 		}),
 	},
-};
+});
