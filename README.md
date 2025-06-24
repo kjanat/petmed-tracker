@@ -1,6 +1,40 @@
-# Create T3 App
+# PetMed Tracker
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A modern, mobile-first pet medication and care tracker built with Next.js, TRPC, Prisma, NextAuth, Tailwind CSS, and Bun.
+
+## Features
+
+- Manage pets, medications, food schedules, and caregivers
+- QR code system for emergency access and sharing
+- Discord OAuth authentication
+- PWA support for offline use and home screen install
+- End-to-end type safety with TRPC
+- SQLite database (dev) via Prisma
+
+## Quick Start
+
+```bash
+bun install
+bun run db:generate
+bun run dev
+```
+
+## Project Stack
+
+- Next.js 15 (App Router, Turbo)
+- TRPC, React Query
+- Prisma ORM (SQLite by default)
+- NextAuth v5 (Discord OAuth)
+- Tailwind CSS
+- Bun (package manager & scripts)
+
+## Contributing
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+
+## License
+
+MIT
 
 ## What's next? How do I make an app with this?
 

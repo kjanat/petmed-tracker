@@ -1,0 +1,29 @@
+name: "✨ Feature Request"
+description: "Suggest an idea or enhancement."
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what-feature
+    attributes:
+      label: "What feature do you want?"
+      description: "Describe the feature or enhancement."
+      placeholder: "A clear and concise description of your idea."
+    validations:
+      required: true
+  - type: textarea
+    id: why-needed
+    attributes:
+      label: "Why is it needed?"
+      description: "Why would this be useful?"
+      placeholder: "Explain the value or use case."
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives considered"
+      description: "Any alternative solutions or features you've considered."
+      placeholder: "Describe alternatives, if any."
+    validations:
+      required: false
