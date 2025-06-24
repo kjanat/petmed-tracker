@@ -15,7 +15,10 @@
 	"biome.configurationPath": "biome.jsonc",
 	"editor.defaultFormatter": "biomejs.biome",
 	"[jsonc]": {
-		"editor.defaultFormatter": "biomejs.biome"
+		"editor.defaultFormatter": "vscode.json-language-features",
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.autoIndent": "full"
 	},
 	"[javascript]": {
 		"editor.defaultFormatter": "biomejs.biome"

@@ -1,26 +1,40 @@
 {
 	"compilerOptions": {
-		/* Base Options: */
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"target": "es2024",
-		"allowJs": true,
-		"resolveJsonModule": true,
+		/* Environment setup & latest features */
+		"lib": ["dom", "dom.iterable", "ESNext"],
+		"target": "ESNext",
+		"module": "Preserve",
 		"moduleDetection": "force",
-		"isolatedModules": true,
+		"jsx": "preserve",
+		"allowJs": true,
+
+		/* Bundler mode */
+		"moduleResolution": "Bundler",
+		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
+		"noEmit": true,
+
+		/* Best practices */
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+
+		/* Some stricter flags (disabled by default) */
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false,
+
+		/* Type checking */
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
 
 		/* Strictness */
-		"strict": true,
-		"noUncheckedIndexedAccess": true,
 		"checkJs": true,
 
 		/* Bundled projects */
-		"lib": ["dom", "dom.iterable", "ES2024"],
-		"noEmit": true,
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"jsx": "preserve",
 		"plugins": [{ "name": "next" }],
 		"incremental": true,
 

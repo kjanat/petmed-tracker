@@ -3,6 +3,12 @@
  * for Docker builds.
  */
 import "./src/env.js";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+	enabled: process.env.ANALYZE === "true",
+	openAnalyzer: false, // Don't auto-open browser
+});
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -11,11 +17,11 @@ const config = {
 			{
 				protocol: "https",
 				hostname: "cdn.discordapp.com",
-				port: "",
+				port: undefined,
 				pathname: "/avatars/**",
 			},
 		],
 	},
 };
 
-export default config;
+export default withBundleAnalyzer(config);
