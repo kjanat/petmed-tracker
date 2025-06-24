@@ -222,6 +222,61 @@ export const medicationRouter = createTRPCRouter({
       });
     }),
 
+  // Log a medication dose
+  logDose: protectedProcedure
+    .input(z.object({
+      medicationId: z.string(),
+      status: z.enum(["given", "missed", "skipped", "pending"]),
+      actualTime: z.date().optional(),
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Check if user has access to this medication
+      const medication = await ctx.db.medication.findUnique({
+        where: { id: input.medicationId },
+        include: { pet: { include: { userPets: true } } },
+      });
+
+      if (!medication) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Medication not found",
+        });
+      }
+
+      const userHasAccess = medication.pet.userPets.some(
+        up => up.userId === ctx.session.user.id
+      );
+
+      if (!userHasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have access to this medication",
+        });
+      }
+
+      // Create medication log
+      return await ctx.db.medicationLog.create({
+        data: {
+          medicationId: input.medicationId,
+          scheduledTime: input.actualTime || new Date(), // Use actualTime as scheduledTime if provided
+          actualTime: input.actualTime,
+          givenByUserId: ctx.session.user.id,
+          status: input.status,
+          notes: input.notes,
+        },
+        include: {
+          givenBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+    }),
+
   // Get today's medication schedule for a pet
   getTodaySchedule: protectedProcedure
     .input(z.object({ petId: z.string() }))
