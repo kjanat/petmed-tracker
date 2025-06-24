@@ -49,6 +49,16 @@ export default function PetDetailsPage() {
 	const [showSettings, setShowSettings] = useState(false);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+	// Edit form data state
+	const [editFormData, setEditFormData] = useState({
+		name: "",
+		species: "",
+		breed: "",
+		birthDate: null as Date | null,
+		weight: null as number | null,
+		notes: "",
+	});
+
 	const {
 		data: pet,
 		isLoading,
@@ -86,6 +96,20 @@ export default function PetDetailsPage() {
 			toast.error(error.message);
 		},
 	});
+
+	// Initialize edit form data when pet data loads
+	useEffect(() => {
+		if (pet) {
+			setEditFormData({
+				name: pet.name,
+				species: pet.species || "",
+				breed: pet.breed || "",
+				birthDate: pet.birthDate || null,
+				weight: pet.weight || null,
+				notes: pet.notes || "",
+			});
+		}
+	}, [pet]);
 
 	// Close settings dropdown when clicking outside
 	useEffect(() => {
@@ -373,9 +397,9 @@ export default function PetDetailsPage() {
 											<div className="flex items-center gap-1 text-green-600">
 												<CheckCircle size={16} />
 												<span className="text-xs">
-													{new Date(
-														med.logs[0]?.createdAt,
-													).toLocaleDateString()}
+													{med.logs[0]?.createdAt
+														? new Date(med.logs[0].createdAt).toLocaleDateString()
+														: "No date"}
 												</span>
 											</div>
 										) : (

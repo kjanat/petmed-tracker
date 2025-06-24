@@ -38,6 +38,12 @@ export default function PetMedicationsPage() {
 		},
 	});
 
+	const deleteMedicationMutation = api.medication.update.useMutation({
+		onSuccess: () => {
+			refetch();
+		},
+	});
+
 	if (isLoading) {
 		return (
 			<MobileLayout activeTab="pets">
@@ -302,12 +308,10 @@ export default function PetMedicationsPage() {
 											<span className="text-green-700 text-sm">
 												Last dose:{" "}
 												{medication.logs[0]?.actualTime
-													? new Date(
-															medication.logs[0]?.actualTime,
-														).toLocaleDateString()
-													: new Date(
-															medication.logs[0]?.createdAt,
-														).toLocaleDateString()}
+													? new Date(medication.logs[0].actualTime).toLocaleDateString()
+													: medication.logs[0]?.createdAt
+														? new Date(medication.logs[0].createdAt).toLocaleDateString()
+														: "No date"}
 											</span>
 										</>
 									) : (
@@ -385,6 +389,7 @@ export default function PetMedicationsPage() {
 												) {
 													deleteMedicationMutation.mutate({
 														id: medication.id,
+														isActive: false,
 													});
 												}
 											}}

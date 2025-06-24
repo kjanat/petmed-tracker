@@ -37,7 +37,7 @@ export default function PWAInstaller() {
 			// Prevent Chrome 67 and earlier from automatically showing the prompt
 			e.preventDefault();
 			// Stash the event so it can be triggered later
-			setDeferredPrompt(e);
+			setDeferredPrompt(e as BeforeInstallPromptEvent);
 			// Show our custom install prompt
 			setShowInstallPrompt(true);
 		};

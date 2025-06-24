@@ -69,6 +69,8 @@ export default function NewMedicationPage() {
 		notes: "",
 	});
 
+	const [showSuggestions, setShowSuggestions] = useState(false);
+
 	const { data: pet } = api.pet.getById.useQuery({ id: petId });
 
 	const createMedicationMutation = api.medication.create.useMutation({
