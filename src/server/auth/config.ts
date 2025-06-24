@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import type { DefaultSession, AuthOptions, Session, User } from "next-auth";
+import type { AuthOptions, DefaultSession, Session, User } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "@/server/db";
@@ -26,7 +26,9 @@ declare module "next-auth" {
 }
 
 if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
-	throw new Error("Missing Discord environment variables: DISCORD_CLIENT_ID or DISCORD_CLIENT_SECRET");
+	throw new Error(
+		"Missing Discord environment variables: DISCORD_CLIENT_ID or DISCORD_CLIENT_SECRET",
+	);
 }
 
 /**
