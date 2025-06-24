@@ -160,9 +160,10 @@ model MedicationLog {
 model FoodSchedule {
     id           String    @id @default(cuid())
     petId        String
-    feedingTimes String    // JSON array of times ["07:00", "19:00"]
-    portion      String?   // "1 cup", "50g", etc.
-    foodType     String?
+    times        String    // JSON array of times ["07:00", "19:00"]
+    amount       String?   // "1 cup", "50g", etc.
+    unit         String?   // "cups", "grams", etc.
+    foodType     String    // Required field
     instructions String?
     isActive     Boolean   @default(true)
     createdAt    DateTime  @default(now())
@@ -177,10 +178,11 @@ model FoodLog {
     foodScheduleId String
     scheduledTime  DateTime
     actualTime     DateTime?
-    givenByUserId  String?
+    fedByUserId    String?
     notes          String?
+    status         String       @default("pending") // "fed", "missed", "skipped", "pending"
     createdAt      DateTime     @default(now())
 
     foodSchedule FoodSchedule @relation(fields: [foodScheduleId], references: [id], onDelete: Cascade)
-    givenBy      User?        @relation(fields: [givenByUserId], references: [id])
+    fedBy        User?        @relation(fields: [fedByUserId], references: [id])
 }

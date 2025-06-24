@@ -4,14 +4,22 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import MobileLayout from "@/components/MobileLayout";
-import { Clock, AlertCircle, CheckCircle, Download, Heart } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle, Download, Heart, Plus, Check, X, FileText } from "lucide-react";
+import { toast } from "react-hot-toast";
 import QRCode from "react-qr-code";
 
 function QRPageContent() {
   const searchParams = useSearchParams();
   const qrCodeId = searchParams.get("id");
+  const [selectedMedication, setSelectedMedication] = useState<string | null>(null);
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [logForm, setLogForm] = useState({
+    status: "given" as "given" | "missed" | "skipped",
+    caregiverName: "",
+    notes: "",
+  });
   
-  const { data: scheduleData, isLoading } = api.qrCode.getTodayScheduleByQrCode.useQuery(
+  const { data: scheduleData, isLoading, refetch } = api.qrCode.getTodayScheduleByQrCode.useQuery(
     { qrCodeId: qrCodeId! },
     {
       enabled: !!qrCodeId,
@@ -20,6 +28,39 @@ function QRPageContent() {
       staleTime: 5 * 60 * 1000, // 5 minutes
     }
   );
+
+  const logDoseMutation = api.qrCode.logDoseByQrCode.useMutation({
+    onSuccess: () => {
+      toast.success("Dose logged successfully!");
+      setShowLogForm(false);
+      setSelectedMedication(null);
+      setLogForm({ status: "given", caregiverName: "", notes: "" });
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleQuickLog = (medicationId: string, medicationName: string) => {
+    setSelectedMedication(medicationId);
+    setShowLogForm(true);
+  };
+
+  const handleSubmitLog = () => {
+    if (!selectedMedication || !qrCodeId || !logForm.caregiverName.trim()) {
+      toast.error("Please fill in your name");
+      return;
+    }
+
+    logDoseMutation.mutate({
+      qrCodeId,
+      medicationId: selectedMedication,
+      status: logForm.status,
+      caregiverName: logForm.caregiverName.trim(),
+      notes: logForm.notes,
+    });
+  };
 
   if (!qrCodeId) {
     return (
@@ -183,7 +224,7 @@ function QRPageContent() {
                         )}
                       </div>
 
-                      <div className="ml-4">
+                      <div className="ml-4 space-y-2">
                         {item.status === "given" ? (
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Complete
@@ -196,6 +237,17 @@ function QRPageContent() {
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                             Pending
                           </span>
+                        )}
+
+                        {/* Quick Log Button */}
+                        {item.status !== "given" && (
+                          <button
+                            onClick={() => handleQuickLog(item.medicationId, item.medicationName)}
+                            className="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
+                          >
+                            <Plus size={16} />
+                            Log Dose
+                          </button>
                         )}
                       </div>
                     </div>
@@ -210,10 +262,117 @@ function QRPageContent() {
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-semibold text-blue-900 mb-2">Emergency Access</h3>
           <p className="text-sm text-blue-800">
-            This QR code provides read-only access to {pet.name}'s medication schedule.
-            For emergencies or to log medications, please contact one of the pet's caregivers.
+            This QR code provides access to {pet.name}'s medication schedule.
+            Emergency caregivers can log doses directly from this page.
           </p>
         </div>
+
+        {/* Log Dose Modal */}
+        {showLogForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Log Medication Dose
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Status Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status *
+                  </label>
+                  <div className="space-y-2">
+                    {[
+                      { value: "given", label: "Given", icon: CheckCircle, color: "green" },
+                      { value: "missed", label: "Missed", icon: X, color: "red" },
+                      { value: "skipped", label: "Skipped", icon: AlertCircle, color: "yellow" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setLogForm(prev => ({ ...prev, status: option.value as any }))}
+                        className={`w-full p-3 rounded-lg border-2 text-left transition-colors ${
+                          logForm.status === option.value
+                            ? `border-${option.color}-500 bg-${option.color}-50`
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <option.icon size={20} className={`${
+                            logForm.status === option.value ? `text-${option.color}-600` : "text-gray-400"
+                          }`} />
+                          <span className="font-medium">{option.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Caregiver Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={logForm.caregiverName}
+                    onChange={(e) => setLogForm(prev => ({ ...prev, caregiverName: e.target.value }))}
+                    placeholder="Enter your name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Notes (Optional)
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      value={logForm.notes}
+                      onChange={(e) => setLogForm(prev => ({ ...prev, notes: e.target.value }))}
+                      placeholder="Any observations or notes..."
+                      rows={3}
+                      className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <FileText className="absolute left-3 top-3 text-gray-400" size={16} />
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => {
+                      setShowLogForm(false);
+                      setSelectedMedication(null);
+                      setLogForm({ status: "given", caregiverName: "", notes: "" });
+                    }}
+                    className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitLog}
+                    disabled={logDoseMutation.isPending || !logForm.caregiverName.trim()}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {logDoseMutation.isPending ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Logging...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <Check size={16} />
+                        Log Dose
+                      </div>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Refresh Notice */}
         <div className="mt-4 text-center">

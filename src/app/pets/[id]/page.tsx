@@ -24,6 +24,7 @@ import {
   QrCode,
   Settings,
   FileText,
+  Coffee,
 } from "lucide-react";
 import QRCode from "react-qr-code";
 
@@ -184,6 +185,31 @@ export default function PetDetailsPage() {
             <div>
               <div className="font-medium">Medications</div>
               <div className="text-xs opacity-90">{activeMedications.length} active</div>
+            </div>
+          </Link>
+          
+          <Link
+            href={`/pets/${pet.id}/food`}
+            className="flex items-center gap-3 bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Coffee size={20} />
+            <div>
+              <div className="font-medium">Food Schedule</div>
+              <div className="text-xs opacity-90">Feeding tracker</div>
+            </div>
+          </Link>
+        </div>
+        
+        {/* Secondary Actions */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Link
+            href={`/pets/${pet.id}/schedule`}
+            className="flex items-center gap-3 bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <Calendar size={20} />
+            <div>
+              <div className="font-medium">Schedule</div>
+              <div className="text-xs opacity-90">Calendar view</div>
             </div>
           </Link>
           
@@ -384,7 +410,7 @@ export default function PetDetailsPage() {
               {pet.name}'s QR Code
             </h3>
             
-            <div className="bg-white p-4 rounded-lg text-center mb-4">
+            <div id="qr-code-modal" className="bg-white p-4 rounded-lg text-center mb-4">
               <QRCode
                 value={`${window.location.origin}/qr?id=${pet.qrCodeId}`}
                 size={200}
@@ -406,7 +432,8 @@ export default function PetDetailsPage() {
               <button
                 onClick={() => {
                   // Download QR code logic (same as pets page)
-                  const svg = document.querySelector('svg');
+                  const qrContainer = document.querySelector('#qr-code-modal');
+                  const svg = qrContainer?.querySelector('svg');
                   if (svg) {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');

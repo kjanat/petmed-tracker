@@ -168,4 +168,54 @@ export const qrCodeRouter = createTRPCRouter({
 
       return { qrCodeId: updatedPet.qrCodeId };
     }),
+
+  // Log dose via QR code (public - no auth required for emergency access)
+  logDoseByQrCode: publicProcedure
+    .input(z.object({
+      qrCodeId: z.string(),
+      medicationId: z.string(),
+      status: z.enum(["given", "missed", "skipped"]),
+      caregiverName: z.string().min(1).max(100), // Emergency caregiver name
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Find pet by QR code
+      const pet = await ctx.db.pet.findFirst({
+        where: { qrCodeId: input.qrCodeId },
+        include: {
+          medications: {
+            where: { id: input.medicationId },
+          },
+        },
+      });
+
+      if (!pet) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pet not found with this QR code",
+        });
+      }
+
+      const medication = pet.medications[0];
+      if (!medication) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Medication not found for this pet",
+        });
+      }
+
+      // Create medication log with emergency caregiver info
+      const log = await ctx.db.medicationLog.create({
+        data: {
+          medicationId: input.medicationId,
+          scheduledTime: new Date(), // Current time as scheduled time
+          actualTime: new Date(),
+          status: input.status,
+          notes: input.notes ? `[Emergency Caregiver: ${input.caregiverName}] ${input.notes}` : `[Emergency Caregiver: ${input.caregiverName}]`,
+          // Note: givenByUserId is null for emergency logs
+        },
+      });
+
+      return { success: true, logId: log.id };
+    }),
 });

@@ -83,7 +83,7 @@ export default function PetsPage() {
               {/* QR Code Display */}
               {showQrFor === pet.id && (
                 <div className="mb-4 p-4 bg-gray-50 rounded-lg text-center">
-                  <div className="bg-white p-4 rounded-lg inline-block">
+                  <div id={`qr-code-${pet.id}`} className="bg-white p-4 rounded-lg inline-block">
                     <QRCode
                       value={`${window.location.origin}/qr?id=${pet.qrCodeId}`}
                       size={200}
@@ -97,7 +97,8 @@ export default function PetsPage() {
                     className="mt-2 text-blue-600 text-sm font-medium hover:text-blue-700"
                     onClick={() => {
                       // Download QR code as PNG
-                      const svg = document.querySelector('svg');
+                      const qrContainer = document.querySelector(`#qr-code-${pet.id}`);
+                      const svg = qrContainer?.querySelector('svg');
                       if (svg) {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
