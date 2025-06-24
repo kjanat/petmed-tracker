@@ -1,4 +1,7 @@
 import { postRouter } from "@/server/api/routers/post";
+import { petRouter } from "@/server/api/routers/pet";
+import { medicationRouter } from "@/server/api/routers/medication";
+import { qrCodeRouter } from "@/server/api/routers/qrcode";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -8,6 +11,9 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
 	post: postRouter,
+	pet: petRouter,
+	medication: medicationRouter,
+	qrCode: qrCodeRouter,
 });
 
 // export type definition of API
