@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import type { DefaultSession, NextAuthConfig } from "next-auth";
+import type { DefaultSession, AuthOptions, Session, User } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "@/server/db";
@@ -25,14 +25,21 @@ declare module "next-auth" {
 	// }
 }
 
+if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
+	throw new Error("Missing Discord environment variables: DISCORD_CLIENT_ID or DISCORD_CLIENT_SECRET");
+}
+
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
  * @see https://next-auth.js.org/configuration/options
  */
-export const authConfig = {
+export const authConfig: AuthOptions = {
 	providers: [
-		DiscordProvider,
+		DiscordProvider({
+			clientId: process.env.DISCORD_CLIENT_ID,
+			clientSecret: process.env.DISCORD_CLIENT_SECRET,
+		}),
 		/**
 		 * ...add more providers here.
 		 *
@@ -45,7 +52,7 @@ export const authConfig = {
 	],
 	adapter: PrismaAdapter(db),
 	callbacks: {
-		session: ({ session, user }) => ({
+		session: ({ session, user }: { session: Session; user: User }) => ({
 			...session,
 			user: {
 				...session.user,
@@ -53,4 +60,4 @@ export const authConfig = {
 			},
 		}),
 	},
-} satisfies NextAuthConfig;
+};
