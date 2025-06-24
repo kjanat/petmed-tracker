@@ -156,7 +156,3 @@ In `src/server/api/trpc.ts`, `auth()` is used to populate `session` in TRPC cont
 - For new providers, follow NextAuth v5 docs: [https://next-auth.js.org/providers](https://next-auth.js.org/providers)
 - Keep Prisma migrations and schema in version control for reproducibility.
 - Utilize TRPC for end-to-end type safety between backend and frontend.
-
----
-
-Happy coding with your T3 stack + Bun setup! 🎉

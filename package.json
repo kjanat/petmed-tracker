@@ -22,7 +22,7 @@
 		"preview": "next build && next start",
 		"start": "next start",
 		"test": "vitest run",
-        "test:coverage": "vitest run --coverage --reporter=junit --outputFile=test-report.junit.xml",
+        "test:coverage": "vitest run --coverage --reporter junit --reporter github-actions --outputFile test-report.junit.xml",
 		"typecheck": "tsc --noEmit",
 		"ci:check": "biome check . --max-diagnostics=none --reporter=github",
 		"ci:check:write": "biome check . --max-diagnostics=none --reporter=github --write"

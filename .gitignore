@@ -48,4 +48,4 @@ certificates
 .github/workflows/workflow.yml
 Get me the most up-to-date t3 recommended testing.md
 .github/FUNDING.yml
-**/*junit.xml
+*.junit.xml
