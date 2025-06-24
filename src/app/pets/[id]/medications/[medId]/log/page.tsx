@@ -13,7 +13,7 @@ import {
   User,
   AlertCircle,
   CheckCircle,
-  Notes,
+  FileText,
 } from "lucide-react";
 
 export default function LogDosePage() {

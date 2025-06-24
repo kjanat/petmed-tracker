@@ -372,4 +372,108 @@ export const medicationRouter = createTRPCRouter({
 
       return todaySchedule.sort((a, b) => a.scheduledTime.getTime() - b.scheduledTime.getTime());
     }),
+
+  // Update medication schedule
+  updateSchedule: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      scheduleType: z.enum(["daily", "weekly", "custom"]).optional(),
+      times: z.array(z.string()).optional(), // ["08:00", "20:00"]
+      daysOfWeek: z.array(z.number().min(0).max(6)).optional(), // [1,2,3,4,5] for Mon-Fri
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
+      isActive: z.boolean().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Check if user has access to this schedule's medication
+      const schedule = await ctx.db.medicationSchedule.findUnique({
+        where: { id: input.id },
+        include: { 
+          medication: { 
+            include: { 
+              pet: { 
+                include: { userPets: true } 
+              } 
+            } 
+          } 
+        },
+      });
+
+      if (!schedule) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Schedule not found",
+        });
+      }
+
+      const userHasAccess = schedule.medication.pet.userPets.some(
+        up => up.userId === ctx.session.user.id
+      );
+
+      if (!userHasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have access to this schedule",
+        });
+      }
+
+      const { id, ...updateData } = input;
+      const processedData: any = { ...updateData };
+      
+      // Process array fields
+      if (updateData.times) {
+        processedData.times = JSON.stringify(updateData.times);
+      }
+      if (updateData.daysOfWeek) {
+        processedData.daysOfWeek = JSON.stringify(updateData.daysOfWeek);
+      }
+
+      return await ctx.db.medicationSchedule.update({
+        where: { id },
+        data: processedData,
+      });
+    }),
+
+  // Delete (deactivate) medication schedule
+  deleteSchedule: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Check if user has access to this schedule's medication
+      const schedule = await ctx.db.medicationSchedule.findUnique({
+        where: { id: input.id },
+        include: { 
+          medication: { 
+            include: { 
+              pet: { 
+                include: { userPets: true } 
+              } 
+            } 
+          } 
+        },
+      });
+
+      if (!schedule) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Schedule not found",
+        });
+      }
+
+      const userHasAccess = schedule.medication.pet.userPets.some(
+        up => up.userId === ctx.session.user.id
+      );
+
+      if (!userHasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You don't have access to this schedule",
+        });
+      }
+
+      // Soft delete by setting isActive to false
+      return await ctx.db.medicationSchedule.update({
+        where: { id: input.id },
+        data: { isActive: false },
+      });
+    }),
 });
