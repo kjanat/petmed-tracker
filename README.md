@@ -51,7 +51,7 @@ bun run dev
 ├── bun.lock
 ├── next.config.js
 ├── package.json
-├── postcss.config.js
+├── postcss.config.mjs
 ├── prisma
 │   ├── db.sqlite
 │   └── schema.prisma

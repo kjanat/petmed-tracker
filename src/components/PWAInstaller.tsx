@@ -150,7 +150,7 @@ export default function PWAInstaller() {
 		<div className="fixed right-4 bottom-20 left-4 z-50 rounded-lg bg-blue-600 p-4 text-white shadow-lg md:right-4 md:left-auto md:max-w-sm">
 			<div className="flex items-start gap-3">
 				<div className="flex-1">
-					<h3 className="font-semibold text-sm">Install Pet Tracker</h3>
+					<h3 className="font-semibold text-sm">Install PetMed Tracker</h3>
 					<p className="mt-1 text-xs opacity-90">
 						Add to your home screen for quick access and offline use
 					</p>

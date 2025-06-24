@@ -112,7 +112,7 @@ In `src/server/api/trpc.ts`, `auth()` is used to populate `session` in TRPC cont
 
 - **next.config.js**: Next.js configuration (framework, transpilation)
 - **tsconfig.json**: TypeScript compiler options and path aliases
-- **postcss.config.js** + **tailwind.config.js**: Tailwind CSS setup
+- **postcss.config.mjs** + **tailwind.config.js**: Tailwind CSS setup
 - **biome.jsonc**: Biome linting rules
 - **prisma/schema.prisma**: Database schema and generators
 - **src/env.js**: Zod schema and environment variable validation
