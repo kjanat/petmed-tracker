@@ -21,22 +21,16 @@ export default function PWAInstaller() {
 	const [deferredPrompt, setDeferredPrompt] =
 		useState<BeforeInstallPromptEvent | null>(null);
 	const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-	const [_isInstalled, setIsInstalled] = useState(false);
-
-	// Remove unused variable
-	setIsInstalled; // This reference prevents the unused variable warning
 
 	useEffect(() => {
 		// Check if app is already installed
 		const checkIfInstalled = () => {
 			// Check if running in standalone mode (PWA installed)
 			if (window.matchMedia("(display-mode: standalone)").matches) {
-				setIsInstalled(true);
 				return true;
 			}
 			// Check if running in a WebView (mobile app)
 			if ((window.navigator as ExtendedNavigator).standalone === true) {
-				setIsInstalled(true);
 				return true;
 			}
 			return false;
