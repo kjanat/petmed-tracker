@@ -18,7 +18,7 @@ This document outlines the best practices and expectations for agents (AI or hum
 ## 3. Testing
 
 - Write and maintain tests for all new features and bug fixes.
-- Use the most up-to-date T3 stack testing recommendations (see `testing.md`).
+- Use `bun run test:unit` for unit tests and `bun run test:e2e` for Playwright.
 - Ensure all tests pass locally before pushing or opening a PR.
 
 ## 4. Communication

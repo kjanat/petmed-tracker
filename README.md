@@ -75,6 +75,7 @@ the appropriate conditions are met.
 │   └── sw.ts
 ├── README.md
 ├── src
+- If running E2E tests for the first time, install browsers with `npx playwright install`
 │   ├── app
 │   │   ├── api
 │   │   ├── _components
@@ -102,6 +103,12 @@ the appropriate conditions are met.
 │       └── server.ts
 └── tsconfig.json
 ```
+
+## Testing
+
+- **Unit tests:** `bun run test:unit`
+- **Watch mode:** `bun run test:unit:watch`
+- **End-to-end:** `bun run test:e2e`
 
 ## Contributing
 

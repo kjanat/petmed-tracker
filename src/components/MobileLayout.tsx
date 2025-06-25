@@ -1,6 +1,9 @@
 import { Heart, Home, QrCode, User } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import React from "react";
+
+void React.createElement;
 
 interface MobileLayoutProps {
 	children: React.ReactNode;
