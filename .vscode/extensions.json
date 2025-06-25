@@ -1,6 +1,3 @@
 {
-	"recommendations": [
-		"biomejs.biome",
-		"codecov.codecov"
-	]
+	"recommendations": ["biomejs.biome", "codecov.codecov"]
 }

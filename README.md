@@ -95,6 +95,12 @@ bun run dev
 └── tsconfig.json
 ```
 
+## Testing
+
+- **Unit tests:** `bun run test:unit`
+- **Watch mode:** `bun run test:unit:watch`
+- **End-to-end:** `bun run test:e2e`
+
 ## Contributing
 
 See [CONTRIBUTING.md](.github/CONTRIBUTING.md)
