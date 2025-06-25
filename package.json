@@ -21,7 +21,7 @@
 		"postinstall": "prisma generate",
 		"preview": "next build && next start",
 		"start": "next start",
-		"test": "vitest run",
+		"test": "bun run test:unit",
 		"test:coverage": "vitest run --coverage --reporter junit --reporter github-actions --outputFile test-report.junit.xml",
 		"typecheck": "tsc --noEmit",
 		"ci:check": "biome check . --max-diagnostics=none --reporter=github",
@@ -66,16 +66,15 @@
 		"@types/node": "^24.0.4",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
+		"@vitejs/plugin-react": "^4.6.0",
 		"@vitest/coverage-v8": "^3.2.4",
 		"cross-env": "^7.0.3",
 		"jsdom": "^26.1.0",
-		"patch-package": "^8.0.0",
 		"postcss": "^8.5.6",
 		"prisma": "^6.10.1",
 		"tailwindcss": "^4.1.10",
 		"typescript": "^5.8.3",
-		"vitest": "^3.2.4",
-		"vitest-in-process-pool": "^2.0.1"
+		"vitest": "^3.2.4"
 	},
 	"ct3aMetadata": {
 		"initVersion": "7.39.3"

@@ -75,6 +75,7 @@ the appropriate conditions are met.
 │   └── sw.ts
 ├── README.md
 ├── src
+- If running E2E tests for the first time, install browsers with `npx playwright install`
 │   ├── app
 │   │   ├── api
 │   │   ├── _components

@@ -15,13 +15,19 @@ export default defineConfig({
 			name: "firefox",
 			use: { ...devices["Desktop Firefox"] },
 		},
-		{
-			name: "webkit",
-			use: { ...devices["Desktop Safari"] },
-		},
+		// WebKit disabled due to missing system dependencies
 	],
 	webServer: {
 		command: "bun run dev",
+		cwd: new URL(".", import.meta.url).pathname,
+		timeout: 120 * 1000,
+		env: {
+			SKIP_ENV_VALIDATION: "true",
+			AUTH_SECRET: "placeholder",
+			AUTH_DISCORD_ID: "1",
+			AUTH_DISCORD_SECRET: "1",
+			DATABASE_URL: "file:./dev.db",
+		},
 		port: 3000,
 		reuseExistingServer: !process.env.CI,
 	},

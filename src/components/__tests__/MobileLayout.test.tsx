@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+// biome-ignore lint/correctness/noUnusedImports: React is needed for JSX runtime
+import React from "react";
+import { expect, vi } from "vitest";
 import MobileLayout from "../MobileLayout";
 
 vi.mock("next-auth/react", () => ({
