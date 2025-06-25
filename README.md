@@ -30,6 +30,14 @@ bun run db:generate
 bun run dev
 ```
 
+## PWA Installation Logic
+
+The `PWAInstaller` component registers the service worker and listens for the
+`beforeinstallprompt` event so the install banner can be shown at the right
+time. When a user dismisses the banner, their choice is stored in `localStorage`
+to prevent nagging. Once installed or dismissed, the prompt won't reappear until
+the appropriate conditions are met.
+
 ## Project Stack
 
 - Next.js 15 (App Router, Turbo)
@@ -51,7 +59,7 @@ bun run dev
 ├── bun.lock
 ├── next.config.js
 ├── package.json
-├── postcss.config.js
+├── postcss.config.mjs
 ├── prisma
 │   ├── db.sqlite
 │   └── schema.prisma

@@ -259,7 +259,7 @@ The app is designed mobile-first with:
 ### UI & Styling
 
 - **Tailwind CSS 4.1.10** - Latest with container queries and modern features
-- **Lucide React 0.522.0** - Consistent icon library (300+ icons)
+- **Lucide React 0.523.0** - Consistent icon library (300+ icons)
 - **@tailwindcss/postcss 4.1.10** - PostCSS integration
 
 ### QR Code Functionality

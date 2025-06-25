@@ -21,22 +21,16 @@ export default function PWAInstaller() {
 	const [deferredPrompt, setDeferredPrompt] =
 		useState<BeforeInstallPromptEvent | null>(null);
 	const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-	const [_isInstalled, setIsInstalled] = useState(false);
-
-	// Remove unused variable
-	setIsInstalled; // This reference prevents the unused variable warning
 
 	useEffect(() => {
 		// Check if app is already installed
 		const checkIfInstalled = () => {
 			// Check if running in standalone mode (PWA installed)
 			if (window.matchMedia("(display-mode: standalone)").matches) {
-				setIsInstalled(true);
 				return true;
 			}
 			// Check if running in a WebView (mobile app)
 			if ((window.navigator as ExtendedNavigator).standalone === true) {
-				setIsInstalled(true);
 				return true;
 			}
 			return false;
@@ -150,7 +144,7 @@ export default function PWAInstaller() {
 		<div className="fixed right-4 bottom-20 left-4 z-50 rounded-lg bg-blue-600 p-4 text-white shadow-lg md:right-4 md:left-auto md:max-w-sm">
 			<div className="flex items-start gap-3">
 				<div className="flex-1">
-					<h3 className="font-semibold text-sm">Install Pet Tracker</h3>
+					<h3 className="font-semibold text-sm">Install PetMed Tracker</h3>
 					<p className="mt-1 text-xs opacity-90">
 						Add to your home screen for quick access and offline use
 					</p>
